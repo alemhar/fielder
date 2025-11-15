@@ -47,9 +47,9 @@ export const API_BASE_URL = 'http://<your-pc-lan-ip>:8000'
 
 ### 3. Login Flow (Dev)
 
-- Test backend login: `POST /auth/login` with JSON body:
+- Test backend login: `POST /api/auth/login` with JSON body:
   - `{ "email": "demo@fielder.app", "password": "password123" }`
-- Mobile app calls `/auth/login` using `API_BASE_URL` to authenticate and receive a token.
+- Mobile app calls `/api/auth/login` using `API_BASE_URL` to authenticate and receive a token.
 
 ## Documentation
 

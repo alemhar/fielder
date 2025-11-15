@@ -30,13 +30,13 @@ Treat this file as **authoritative** for auth decisions; keep it in sync with `r
 
 These are the typical endpoints for a token-based mobile API. Align `routes/api.php` to this list and update the doc when it changes.
 
-- `POST /auth/login`
+- `POST /api/auth/login`
   - **Purpose**: Exchange email + password for a personal access token.
   - **Auth**: Public (no token required).
-- `POST /auth/logout`
+- `POST /api/auth/logout`
   - **Purpose**: Revoke the current token.
   - **Auth**: Requires valid token.
-- `GET /me`
+- `GET /api/me`
   - **Purpose**: Fetch the authenticated user profile for the current token.
   - **Auth**: Requires valid token.
 
@@ -44,12 +44,12 @@ Additional auth-related endpoints (e.g., password reset, refresh, device registr
 
 ---
 
-## 4. Login Flow (`POST /auth/login`)
+## 4. Login Flow (`POST /api/auth/login`)
 
 ### Request
 
 - **Method**: `POST`
-- **Path**: `/auth/login`
+- **Path**: `/api/auth/login`
 - **Body (JSON)**:
   - `email: string`
   - `password: string`
@@ -143,7 +143,7 @@ Mobile clients should map these messages into friendly UI errors rather than sho
 
 ## 6. Securing Routes
 
-- Public endpoints (e.g., `POST /auth/login`, health checks) live in `routes/api.php` **without** auth middleware.
+- Public endpoints (e.g., `POST /api/auth/login`, health checks) live in `routes/api.php` **without** auth middleware.
 - Authenticated endpoints should:
   - Be grouped and protected by `auth:sanctum` (or equivalent guard):
     - Ex: `Route::middleware('auth:sanctum')->group(function () { ... });`

@@ -14,11 +14,11 @@ This document describes the backend API for Fielder: a Laravel 12 (PHP) REST ser
 ## Folder Structure (Backend)
 - `backend/` — Laravel application root.
 - `backend/app/Http/Controllers/Api/` — API controllers (e.g., `AuthController`, `ActivityController`).
-- `backend/routes/api.php` — API routes (e.g., `POST /auth/login`).
+- `backend/routes/api.php` — API routes (e.g., `POST /api/auth/login`).
 - `backend/app/Models/` — Eloquent models (e.g., `User`, `Activity`).
 
 ## Auth / Login (Current)
-- Endpoint: `POST /auth/login`
+- Endpoint: `POST /api/auth/login`
 - Request body: `{ email: string; password: string }`
 - Response: `{ user: { id: string; email: string }, token: string }`.
 - Implementation: Laravel auth (e.g., Sanctum) issues a personal access token for mobile clients.
@@ -39,10 +39,10 @@ This document describes the backend API for Fielder: a Laravel 12 (PHP) REST ser
 ## Authentication & Tokens
 - Fielder uses Laravel’s authentication stack (e.g., Sanctum) to issue **personal access tokens** for the mobile app.
 - Typical flow:
-  - Mobile calls `POST /auth/login` with email/password.
+  - Mobile calls `POST /api/auth/login` with email/password.
   - Backend validates credentials and issues a token tied to the user.
   - Mobile includes `Authorization: Bearer <token>` on subsequent API calls.
-- Logout / token revocation is handled via a dedicated endpoint (e.g., `POST /auth/logout`) that deletes the current token.
+- Logout / token revocation is handled via a dedicated endpoint (e.g., `POST /api/auth/logout`) that deletes the current token.
 - See `docs/stacks/backend-laravel-auth-patterns.md` for detailed auth flows and edge cases.
 
 ## Error Format & Contracts
