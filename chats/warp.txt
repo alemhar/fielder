@@ -1,0 +1,107 @@
+lets create a new react native app 
+To get started, we need to decide on a couple of things:
+
+1. Expo or bare React Native?
+◦  Expo: Easier setup, great for beginners, fewer native-config headaches. Recommended unless you know you need custom native modules.
+◦  Bare React Native (CLI): More control and flexibility for native code, but more setup and maintenance.
+2. TypeScript or plain JavaScript?
+◦  I recommend TypeScript for almost all new projects.
+3. Package manager: npm, yarn, or pnpm?
+◦  If you don’t care, we can just use npm.
+
+Answer these quickly (Expo vs bare, TS vs JS, preferred package manager), and I’ll:
+•  Give you exact commands to run on Windows PowerShell.
+•  Include any prerequisites checks (Node, Android Studio, etc.).
+•  Optionally, guide you through the first run on Android/iOS/emulator.
+
+
+lets use expo, typescript and npm. and please yes guide me on the first run on Android.
+
+
+
+npx expo start
+npm start -- --clear
+
+
+
+
+the emulator is black screen, I again use the actual mobile. 
+
+other error message includes:
+java lang string cannot be cast to java lang boolean
+
+setProperty
+sourceFile:642
+
+updateProperties:
+Sourcefile:35
+
+createViewInstance
+Sourcefile:7
+
+createView
+Sourcefile:1
+
+createViewUnsafe
+Sourcefile:68
+
+preallocateView
+Sourcefile:25
+
+execute
+Sourcefile:54
+
+executeOrEnqueue
+Sourcefile:56
+
+dispatchPreMountItems
+Sourcefile:18
+
+doFrameGuarded
+Sourcefile:1
+
+frameCallback$lambda$1
+Sourcefile:32
+
+a
+Sourcefile:1
+
+doFrame
+Sourcefile:1
+
+run
+Choreographer.java:1503
+
+run
+Choreographer.java:1513
+
+doCallbacks
+Choreographer.java:1128
+
+run
+Choreographer.java:1481
+
+handleCallback
+Handler.java:942
+
+dispatchMessage
+Handler.java:942
+
+loopOnce
+Looper.java:211
+
+loop
+Looper.java:300
+
+main
+ActivityThread.java:8503
+
+invoke
+Method.java
+
+run
+RuntimeInit.java:561
+
+main
+ZygoteInit.java:954
+
