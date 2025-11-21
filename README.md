@@ -5,7 +5,7 @@ Fielder is a mobile-first field data collection app. It helps users capture stru
 ## Repo Structure
 
 - `docs/` — Documentation (index, stacks, domain, delivery, issues).
-- `backend/` — Laravel 12 (PHP) backend API (auth/login now, activities/sync later).
+- `backend/` — Laravel 12 starter kit (PHP) with React + Inertia (web UI plus API endpoints for auth/login now, activities/sync later).
 - `FielderApp/` — Expo + React Native mobile app (TypeScript, Zustand).
 
 See `docs/index.md` for a curated overview of architecture, domain, and conventions.

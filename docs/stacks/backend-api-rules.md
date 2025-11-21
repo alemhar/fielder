@@ -1,4 +1,4 @@
-# Backend API Rulebook · Laravel 12 (PHP)
+# Backend API Rulebook · Laravel 12 starter kit (PHP, React + Inertia)
 
 > Specialization of the baseline rules in `WARP.md` and `docs/documentation-plan.md` for the Fielder backend.
 

@@ -2,7 +2,7 @@ PROJECT: Fielder (Expo + React Native + Zustand + Backend API)
 
 STACK
 - Mobile: Expo + React Native + TypeScript + Zustand + npm
-- Backend/API: Laravel 12 (PHP) REST API service
+- Backend/API: Laravel 12 starter kit (PHP) with React + Inertia (web UI + JSON endpoints for mobile)
 - Docs: single `docs/` root at repo level
 
 REPO LAYOUT

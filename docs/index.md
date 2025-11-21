@@ -4,13 +4,13 @@
 - **Current Release**: v0.1.0 (prototype)
 - **Repo Layout**:
   - `FielderApp/` – Expo + React Native app (TypeScript, Zustand)
-  - `backend/` – Laravel 12 (PHP) REST API service
+  - `backend/` – Laravel 12 starter kit (PHP) with React + Inertia (web UI + API endpoints)
   - `docs/` – Shared documentation hub (this folder)
 
 ## Stack Profiles
 
 - [Mobile · Expo + React Native](stacks/mobile-expo-react-native.md) — App structure, navigation, theming, state strategy. ([rules](stacks/mobile-expo-react-native-rules.md))
-- [Backend · API](stacks/backend-api.md) — Laravel 12 (PHP) REST API endpoints, integration patterns, resilience. ([rules](stacks/backend-api-rules.md))
+- [Backend · API](stacks/backend-api.md) — Laravel 12 starter kit (PHP, React + Inertia) backend/web app and JSON endpoints for the mobile client. ([rules](stacks/backend-api-rules.md))
 - [Data Layer](stacks/data-layer.md) — (Planned) Remote APIs, local storage, caching, synchronization. ([rules](stacks/data-layer-rules.md))
 
 ## Domain Knowledge

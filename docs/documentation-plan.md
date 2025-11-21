@@ -441,7 +441,7 @@ Accelerate new team member productivity with structured documentation immersion.
 
 This reference captures the shared conventions for the **Fielder monorepo**:
 - Mobile app: **Expo + React Native + TypeScript + Zustand + npm**
-- Backend/API: **Laravel 12 (PHP) service** (REST-style API; framework-specific patterns live in `docs/stacks/backend-api*.md`)
+- Backend/API: **Laravel 12 starter kit (PHP, React + Inertia)** (web UI + REST-style JSON endpoints; framework-specific patterns live in `docs/stacks/backend-api*.md`)
 - Shared docs: single `docs/` root at the repo level.
 
 It serves as the baseline for all code generation and review. Stack-specific rulebooks in `docs/stacks/*.md` may override these.

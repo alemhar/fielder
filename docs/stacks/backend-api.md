@@ -1,7 +1,7 @@
-# Backend Stack · Laravel 12 (PHP)
+# Backend Stack · Laravel 12 starter kit (PHP, React + Inertia)
 
 ## Purpose
-This document describes the backend API for Fielder: a Laravel 12 (PHP) REST service that provides authentication and, later, activity/sync endpoints for the mobile app.
+This document describes the backend API for Fielder: the JSON API surface of the Laravel 12 starter kit (PHP, React + Inertia) that provides authentication and, later, activity/sync endpoints for the mobile app. The same Laravel application also serves the Inertia-powered React web UI, so keep web (Inertia) routes and JSON API routes clearly separated.
 
 ## High-Level Architecture
 - **Runtime**: PHP + Laravel 12
