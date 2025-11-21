@@ -20,8 +20,12 @@ This document describes the backend API for Fielder: the JSON API surface of the
 ## Auth / Login (Current)
 - Endpoint: `POST /api/auth/login`
 - Request body: `{ email: string; password: string }`
-- Response: `{ user: { id: string; email: string }, token: string }`.
+- Response: `{ user: { id: string; email: string }, company: { id: string; name: string; slug: string }, token: string }`.
 - Implementation: Laravel auth (e.g., Sanctum) issues a personal access token for mobile clients.
+
+Additional auth endpoint:
+
+- `GET /api/me` — Returns the authenticated `user` and their `company` (tenant) for session restore when provided with a valid Sanctum token.
 
 ## Environment & Networking
 - Default dev host: typically `http://localhost:8000` from `php artisan serve` (or your local web server).

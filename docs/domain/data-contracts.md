@@ -34,8 +34,18 @@
   - `email: string`
   - `password: string`
 
+- **Company**
+  - `id: string` (tenant ID)
+  - `name: string` (tenant display name, e.g., "Synnch AU")
+  - `slug: string` (URL-safe identifier, e.g., `synnch-au`)
+
 - **LoginResponse**
   - `user: { id: string; email: string }`
-  - `token: string` (session token; JWT or similar in future)
+  - `company: Company`
+  - `token: string` (Sanctum personal access token; sent as `Authorization: Bearer <token>`)
 
-> Refine these contracts once the backend/API is designed, and keep this file in sync.
+- **MeResponse**
+  - `user: { id: string; email: string }`
+  - `company: Company`
+
+> Keep these contracts in sync with `routes/api.php`, `AuthController`, and the mobile `auth-service.ts` types.

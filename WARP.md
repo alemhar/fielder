@@ -110,6 +110,13 @@ DOCS
   - Relevant stack/rulebook docs
   - ADRs when architecture decisions are made
 
+CODE-COMPLETE CHECKLIST (PER NON-TRIVIAL TASK)
+- Confirm **types & contracts** match across backend + mobile (`docs/domain/data-contracts.md`, controllers, TS types).
+- Update **stack docs** for any changed patterns or endpoints (e.g., `docs/stacks/backend-*.md`, `docs/stacks/mobile-*.md`).
+- Append a **task-log entry** (`docs/delivery/task-log.md`) summarizing what changed and why.
+- Add or adjust **ADRs** in `docs/decisions/` if the work involved an architectural decision.
+- Re-run **manual checks** (and tests when present) before considering the task done.
+
 RULE HIERARCHY
 - Project stack rulebooks in `docs/stacks/*-rules.md` override these baseline rules.
 - ADRs in `docs/decisions/` override general patterns.

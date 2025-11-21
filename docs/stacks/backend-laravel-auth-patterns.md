@@ -21,6 +21,7 @@ Treat this file as **authoritative** for auth decisions; keep it in sync with `r
 - **Guard**:
   - API routes use an `auth` guard suitable for token auth (e.g., `auth:sanctum`).
 - **Audience**: Fielder mobile app (Expo + React Native) as the primary API consumer.
+- **Multi-tenancy**: Each user belongs to a tenant (`tenants` table). Auth responses expose this as a `company` object in the JSON payload.
 
 > If the project adopts a different auth package (e.g., Passport or a custom JWT implementation), update this doc to reflect the actual stack and flows.
 
@@ -66,6 +67,11 @@ Additional auth-related endpoints (e.g., password reset, refresh, device registr
   "user": {
     "id": "string",
     "email": "demo@fielder.app"
+  },
+  "company": {
+    "id": "string",
+    "name": "string",
+    "slug": "string"
   },
   "token": "<personal-access-token>"
 }

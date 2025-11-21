@@ -62,6 +62,18 @@ Link to rules: see [Mobile State Rules](./mobile-expo-react-native-rules.md#stat
 - Centralize base URL and common headers/interceptors.
 - Document request/response shapes in `docs/domain/data-contracts.md` and reference them from here.
 
+### Auth & Session (Current Prototype)
+
+- `services/auth-service.ts`:
+  - `login(email, password)` → `POST /api/auth/login` → `{ user, company, token }`.
+  - `fetchMe(token)` → `GET /api/me` with `Authorization: Bearer <token>` → `{ user, company }`.
+- `stores/auth-store.ts`:
+  - Holds `user`, `company`, `token`, plus `login`, `logout`, and `setSession` helpers.
+  - Drives navigation between `LoginScreen` and `DashboardScreen` via `AppNavigator`.
+- `storage/auth-storage.ts` + `App.tsx`:
+  - Persist `{ user, company, token }` to AsyncStorage on login.
+  - On app start, load any stored token and call `/api/me` to restore the session before rendering the navigator.
+
 ## Error Handling & UX
 
 - Always handle loading, success, empty, and error states explicitly.
