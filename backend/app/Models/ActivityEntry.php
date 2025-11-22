@@ -49,4 +49,9 @@ class ActivityEntry extends Model
 	{
 		return $this->hasMany(ActivityEntryAttachment::class);
 	}
+
+	public function user()
+	{
+		return $this->belongsTo(User::class);
+	}
 }

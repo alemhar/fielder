@@ -27,6 +27,13 @@ class AuthController extends Controller
 
 		$token = $user->createToken('mobile')->plainTextToken;
 
+		$tenant = $user->tenant;
+		$brandingSettings = $tenant->settings['branding'] ?? [];
+		$primaryColor = $brandingSettings['primary_color'] ?? config('branding.primary_color');
+		$secondaryColor = $brandingSettings['secondary_color'] ?? config('branding.secondary_color');
+		$logoLightPath = $brandingSettings['logo_light_path'] ?? config('branding.logo_light');
+		$logoDarkPath = $brandingSettings['logo_dark_path'] ?? config('branding.logo_dark');
+
 		return response()->json([
 			'user' => [
 				'id' => (string) $user->id,
@@ -34,8 +41,14 @@ class AuthController extends Controller
 			],
 			'company' => [
 				'id' => (string) $user->tenant_id,
-				'name' => $user->tenant->name,
-				'slug' => $user->tenant->slug,
+				'name' => $tenant->name,
+				'slug' => $tenant->slug,
+				'branding' => [
+					'primary_color' => $primaryColor,
+					'secondary_color' => $secondaryColor,
+					'logo_light_url' => asset($logoLightPath),
+					'logo_dark_url' => asset($logoDarkPath),
+				],
 			],
 			'token' => $token,
 		]);
@@ -45,6 +58,12 @@ class AuthController extends Controller
 	{
 		/** @var User $user */
 		$user = $request->user();
+		$tenant = $user->tenant;
+		$brandingSettings = $tenant->settings['branding'] ?? [];
+		$primaryColor = $brandingSettings['primary_color'] ?? config('branding.primary_color');
+		$secondaryColor = $brandingSettings['secondary_color'] ?? config('branding.secondary_color');
+		$logoLightPath = $brandingSettings['logo_light_path'] ?? config('branding.logo_light');
+		$logoDarkPath = $brandingSettings['logo_dark_path'] ?? config('branding.logo_dark');
 
 		return response()->json([
 			'user' => [
@@ -53,8 +72,14 @@ class AuthController extends Controller
 			],
 			'company' => [
 				'id' => (string) $user->tenant_id,
-				'name' => $user->tenant->name,
-				'slug' => $user->tenant->slug,
+				'name' => $tenant->name,
+				'slug' => $tenant->slug,
+				'branding' => [
+					'primary_color' => $primaryColor,
+					'secondary_color' => $secondaryColor,
+					'logo_light_url' => asset($logoLightPath),
+					'logo_dark_url' => asset($logoDarkPath),
+				],
 			],
 		]);
 	}

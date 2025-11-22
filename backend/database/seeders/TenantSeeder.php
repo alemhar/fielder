@@ -19,7 +19,6 @@ class TenantSeeder extends Seeder
 			['slug' => 'synnch-au'],
 			[
 				'name' => 'Synnch AU',
-				'settings' => [],
 				'project_default_details_schema' => config('schemas.default_project_details_schema'),
 				'activity_default_details_schema' => config('schemas.default_activity_details_schema'),
 			]

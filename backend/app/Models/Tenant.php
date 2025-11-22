@@ -52,6 +52,28 @@ class Tenant extends Model
 			if (empty($tenant->activity_default_details_schema)) {
 				$tenant->activity_default_details_schema = config('schemas.default_activity_details_schema');
 			}
+
+			$settings = $tenant->settings ?? [];
+			$branding = $settings['branding'] ?? [];
+
+			if (empty($branding['primary_color'])) {
+				$branding['primary_color'] = config('branding.primary_color');
+			}
+
+			if (empty($branding['secondary_color'])) {
+				$branding['secondary_color'] = config('branding.secondary_color');
+			}
+
+			if (empty($branding['logo_light_path'])) {
+				$branding['logo_light_path'] = config('branding.logo_light');
+			}
+
+			if (empty($branding['logo_dark_path'])) {
+				$branding['logo_dark_path'] = config('branding.logo_dark');
+			}
+
+			$settings['branding'] = $branding;
+			$tenant->settings = $settings;
 		});
 	}
 
