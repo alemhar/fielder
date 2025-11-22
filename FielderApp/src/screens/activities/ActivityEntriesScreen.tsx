@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Button, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, Button, TouchableOpacity, Alert, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useAuthStore } from '../../stores/auth-store';
 import {
   fetchActivityEntries,
@@ -34,6 +35,7 @@ export const ActivityEntriesScreen: React.FC = () => {
   const [newBody, setNewBody] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [showAttachModal, setShowAttachModal] = useState(false);
 
   useEffect(() => {
     if (!token || !activityUuid) return;
@@ -100,12 +102,19 @@ export const ActivityEntriesScreen: React.FC = () => {
     }
   };
 
-  const handleAttachPress = () => {
+  const handleAttachFile = () => {
+    setShowAttachModal(false);
     Alert.alert('Attach file', 'File attachment UI to be implemented');
   };
 
-  const handleImagePress = () => {
-    Alert.alert('Attach image', 'Image attachment UI to be implemented');
+  const handleAttachPhoto = () => {
+    setShowAttachModal(false);
+    Alert.alert('Attach photo', 'Photo attachment UI to be implemented');
+  };
+
+  const handleCapturePhoto = () => {
+    setShowAttachModal(false);
+    Alert.alert('Capture photo', 'Camera capture UI to be implemented');
   };
 
   return (
@@ -144,42 +153,38 @@ export const ActivityEntriesScreen: React.FC = () => {
 
       <View style={[styles.newEntryContainer, { borderTopColor: borderBaseColor }]}>
         <View style={styles.inputRow}>
-          <TextInput
-            value={newBody}
-            onChangeText={setNewBody}
-            placeholder="Add a quick note about this activity..."
-            placeholderTextColor={mutedTextColor}
-            multiline
-            style={[
-              styles.newEntryInput,
-              {
-                borderColor: borderBaseColor,
-                backgroundColor: inputBackgroundColor,
-                color: primaryTextColor,
-              },
-            ]}
-          />
-          <View style={styles.iconRow}>
+          <TouchableOpacity
+            style={[styles.attachButton, { borderColor: borderBaseColor }]}
+            onPress={() => setShowAttachModal(true)}
+          >
+            <MaterialIcons name="add" size={24} color={primaryTextColor} />
+          </TouchableOpacity>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              value={newBody}
+              onChangeText={setNewBody}
+              placeholder="Add a quick note about this activity..."
+              placeholderTextColor={mutedTextColor}
+              multiline
+              style={[
+                styles.newEntryInput,
+                {
+                  borderColor: borderBaseColor,
+                  backgroundColor: inputBackgroundColor,
+                  color: primaryTextColor,
+                },
+              ]}
+            />
             <TouchableOpacity
-              style={[styles.iconButton, { borderColor: borderBaseColor }]}
+              style={styles.micButton}
               onPress={handleMicPress}
               disabled={isListening}
             >
-              <Text style={[styles.iconText, { color: isListening ? '#aaa' : primaryTextColor }]}>
-                {isListening ? '...' : '🎤'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.iconButton, { borderColor: borderBaseColor }]}
-              onPress={handleAttachPress}
-            >
-              <Text style={[styles.iconText, { color: primaryTextColor }]}>📎</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.iconButton, { borderColor: borderBaseColor }]}
-              onPress={handleImagePress}
-            >
-              <Text style={[styles.iconText, { color: primaryTextColor }]}>🖼️</Text>
+              <MaterialIcons
+                name={isListening ? 'mic' : 'mic-none'}
+                size={20}
+                color={isListening ? '#aaa' : primaryTextColor}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -189,6 +194,31 @@ export const ActivityEntriesScreen: React.FC = () => {
           color={primaryColor}
         />
       </View>
+
+      {/* Attach Options Modal */}
+      <Modal
+        transparent
+        visible={showAttachModal}
+        animationType="fade"
+        onRequestClose={() => setShowAttachModal(false)}
+      >
+        <TouchableOpacity style={styles.modalOverlay} onPress={() => setShowAttachModal(false)}>
+          <View style={[styles.attachModal, { backgroundColor: cardBackgroundColor, borderColor: borderBaseColor }]}>
+            <TouchableOpacity style={styles.attachOption} onPress={handleAttachFile}>
+              <MaterialIcons name="attach-file" size={24} color={primaryTextColor} />
+              <Text style={[styles.attachOptionText, { color: primaryTextColor }]}>Attach File</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.attachOption} onPress={handleAttachPhoto}>
+              <MaterialIcons name="photo" size={24} color={primaryTextColor} />
+              <Text style={[styles.attachOptionText, { color: primaryTextColor }]}>Photo Library</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.attachOption} onPress={handleCapturePhoto}>
+              <MaterialIcons name="photo-camera" size={24} color={primaryTextColor} />
+              <Text style={[styles.attachOptionText, { color: primaryTextColor }]}>Camera</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -242,33 +272,62 @@ const styles = StyleSheet.create({
   },
   inputRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'flex-end',
     marginBottom: 8,
+    gap: 8,
   },
-  newEntryInput: {
-    backgroundColor: '#222',
-    color: '#fff',
-    borderRadius: 8,
+  attachButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    minHeight: 60,
-    flex: 1,
-    marginRight: 8,
-  },
-  iconRow: {
-    justifyContent: 'space-between',
-  },
-  iconButton: {
-    borderWidth: 1,
-    borderRadius: 8,
-    width: 40,
-    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 4,
   },
-  iconText: {
-    fontSize: 18,
+  inputWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+  newEntryInput: {
+    flex: 1,
+    backgroundColor: '#222',
+    color: '#fff',
+    borderRadius: 22,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    minHeight: 44,
+    paddingRight: 44, // space for mic icon inside
+  },
+  micButton: {
+    position: 'absolute',
+    right: 12,
+    bottom: 10,
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  attachModal: {
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderTopWidth: 1,
+    paddingVertical: 16,
+  },
+  attachOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+  },
+  attachOptionText: {
+    fontSize: 16,
+    marginLeft: 16,
   },
 });
