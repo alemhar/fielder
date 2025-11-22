@@ -90,25 +90,39 @@ export const fetchActivityEntries = async (
   return json.data as ActivityEntryDto[];
 };
 
-export const createActivityEntry = async (
+export async function createActivityEntry(
   activityUuid: string,
   token: string,
-  payload: { body?: string; data?: Record<string, unknown> | null },
-): Promise<ActivityEntryDto> => {
+  data: { body?: string; data?: any; attachments?: DocumentPicker.DocumentPickerAsset[] }
+): Promise<ActivityEntryDto> {
+  const formData = new FormData();
+  if (data.body) formData.append('body', data.body);
+  if (data.data) formData.append('data', JSON.stringify(data.data));
+
+  if (data.attachments && data.attachments.length > 0) {
+    data.attachments.forEach((asset, index) => {
+      formData.append(`attachments[${index}]`, {
+        uri: asset.uri,
+        type: asset.mimeType || 'application/octet-stream',
+        name: asset.name,
+      } as any);
+    });
+  }
+
   const res = await fetch(`${API_BASE_URL}/api/activities/${activityUuid}/entries`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
-      Accept: 'application/json',
+      // Do NOT set Content-Type for FormData; let the browser set it with boundary
     },
-    body: JSON.stringify(payload),
+    body: formData,
   });
 
   if (!res.ok) {
-    throw new Error('Failed to create activity entry');
+    const err = await res.json();
+    throw new Error(err.message || 'Failed to create activity entry');
   }
 
-  const json = await res.json();
-  return json.data as ActivityEntryDto;
-};
+  const json: { data: ActivityEntryDto } = await res.json();
+  return json.data;
+}

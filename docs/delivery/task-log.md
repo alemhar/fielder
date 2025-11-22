@@ -35,6 +35,32 @@ Added a microphone icon to the activity entry composer for speech-to-text, plus 
 **Docs Updated**:  
 - `docs/delivery/task-log.md`
 
+## [2025-11-22] Theme Persistence, Header Styling & Speech-to-Text Research
+**Status**: ✅ Complete  
+**Owner**: (TBD)  
+**Impact**: [BACKEND] [DB] [API] [FRONTEND] [MOBILE] [DOCS]  
+**Changed**: 
+- Added `theme_mode` column to `users` table (default 'dark').
+- Updated `AuthController` to include `theme_mode` in `login` and `me` responses.
+- Added `PUT /api/auth/theme` endpoint to update and persist user’s theme.
+- Updated `auth-store` to sync theme from backend on login/me and persist changes via `updateTheme`.
+- Created shared `SectionHeader` component for Projects, ProjectActivities, and ActivityEntries screens with theme-aware divider.
+- Applied primary color to all screen titles (Dashboard, Projects, ProjectActivities, ActivityEntries).
+- Removed bottom divider on ActivityEntries input area.
+- Documented Expo speech-to-text limitations and free-tier options for Azure Speech and Google Cloud Speech in `docs/mobile-speech-to-text-options.md`.
+
+**Follow-up**:  
+- Replace native speech-to-text with a paid cloud service (Azure or Google) for Expo Go compatibility.
+- Implement actual file/image attachment UI and backend integration.
+
+**Testing**:  
+- [ ] Unit tests added/updated  
+- [x] Manual verification: Theme persists across sessions, divider appears on screens, titles use primary color.
+
+**Docs Updated**:  
+- `docs/mobile-speech-to-text-options.md`
+- `docs/delivery/task-log.md`
+
 ## [2025-11-22] Activity Entries, Tenant Branding & Mobile UI
 **Status**: ✅ Complete  
 **Owner**: (TBD)  

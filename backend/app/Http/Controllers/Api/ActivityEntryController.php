@@ -8,6 +8,7 @@ use App\Models\ActivityEntry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ActivityEntryController extends Controller
 {

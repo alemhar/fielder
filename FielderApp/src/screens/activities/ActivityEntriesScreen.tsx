@@ -3,16 +3,16 @@ import { View, Text, StyleSheet, ScrollView, TextInput, Button, TouchableOpacity
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
+import * as DocumentPicker from 'expo-document-picker';
 import { useAuthStore } from '../../stores/auth-store';
 import {
   fetchActivityEntries,
   createActivityEntry,
   type ActivityEntryDto,
 } from '../../services/fielder-service';
-import { startSpeechToText } from '../../services/speech-service';
+import { startCloudSpeechToText } from '../../services/cloud-speech-service';
 import { useBranding } from '../../theme/branding';
 import { SectionHeader } from '../../components/SectionHeader';
-import Voice from '@react-native-voice/voice';
 
 export const ActivityEntriesScreen: React.FC = () => {
   const route = useRoute<any>();
@@ -37,6 +37,7 @@ export const ActivityEntriesScreen: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [showAttachModal, setShowAttachModal] = useState(false);
+  const [selectedAttachment, setSelectedAttachment] = useState<DocumentPicker.DocumentPickerResult | null>(null);
 
   useEffect(() => {
     if (!token || !activityUuid) return;
@@ -65,24 +66,23 @@ export const ActivityEntriesScreen: React.FC = () => {
     };
   }, [token, activityUuid]);
 
-  // Cleanup Voice listeners on unmount
-  useEffect(() => {
-    return () => {
-      Voice.destroy().then(Voice.removeAllListeners);
-    };
-  }, []);
+  const handleMicPress = async () => {
+    Alert.alert('Speech-to-text', 'Speech-to-text will be available after backend setup. For now, please type your entry.');
+  };
 
   const handleAddEntry = async () => {
-    if (!token || !activityUuid || !newBody.trim()) return;
+    if (!token || !activityUuid || (!newBody.trim() && !selectedAttachment)) return;
     setIsSaving(true);
     setError(null);
     try {
       const created = await createActivityEntry(activityUuid, token, {
-        body: newBody.trim(),
+        body: newBody.trim() || undefined,
         data: null,
+        attachments: selectedAttachment && !selectedAttachment.canceled ? selectedAttachment.assets : undefined,
       });
       setEntries((prev) => [created, ...prev]);
       setNewBody('');
+      setSelectedAttachment(null);
     } catch {
       setError('Failed to save entry');
     } finally {
@@ -90,22 +90,16 @@ export const ActivityEntriesScreen: React.FC = () => {
     }
   };
 
-  const handleMicPress = async () => {
-    setIsListening(true);
-    try {
-      const transcript = await startSpeechToText();
-      setNewBody((prev) => (prev ? `${prev} ${transcript}` : transcript));
-    } catch (e: any) {
-      console.error('Mic error:', e);
-      Alert.alert('Speech-to-text error', e.message || 'Failed to recognize speech');
-    } finally {
-      setIsListening(false);
-    }
-  };
-
-  const handleAttachFile = () => {
+  const handleAttachFile = async () => {
     setShowAttachModal(false);
-    Alert.alert('Attach file', 'File attachment UI to be implemented');
+    try {
+      const result = await DocumentPicker.getDocumentAsync({});
+      if (!result.canceled && result.assets.length > 0) {
+        setSelectedAttachment(result);
+      }
+    } catch {
+      Alert.alert('Error', 'Failed to pick document');
+    }
   };
 
   const handleAttachPhoto = () => {
@@ -116,6 +110,10 @@ export const ActivityEntriesScreen: React.FC = () => {
   const handleCapturePhoto = () => {
     setShowAttachModal(false);
     Alert.alert('Capture photo', 'Camera capture UI to be implemented');
+  };
+
+  const handleClearAttachment = () => {
+    setSelectedAttachment(null);
   };
 
   return (
@@ -145,6 +143,19 @@ export const ActivityEntriesScreen: React.FC = () => {
             ) : null}
           </View>
         ))}
+        {selectedAttachment && !selectedAttachment.canceled && selectedAttachment.assets.length > 0 && (
+          <View style={[styles.attachmentPreview, { backgroundColor: cardBackgroundColor, borderColor: borderBaseColor }]}>
+            <View style={styles.attachmentRow}>
+              <MaterialIcons name="attach-file" size={20} color={primaryTextColor} />
+              <Text style={[styles.attachmentName, { color: primaryTextColor }]}>
+                {selectedAttachment.assets[0].name}
+              </Text>
+              <TouchableOpacity onPress={handleClearAttachment}>
+                <MaterialIcons name="close" size={20} color={mutedTextColor} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </ScrollView>
 
       <View style={[styles.newEntryContainer, { borderTopColor: borderBaseColor }]}>
@@ -245,6 +256,21 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 16,
+  },
+  attachmentPreview: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 8,
+  },
+  attachmentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  attachmentName: {
+    flex: 1,
+    fontSize: 14,
   },
   entryCard: {
     backgroundColor: 'rgba(0,0,0,0.3)',

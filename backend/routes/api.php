@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\ActivityController;
 use App\Http\Controllers\Api\ActivityEntryController;
+use App\Http\Controllers\Api\SpeechToTextController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
@@ -12,6 +13,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::put('/theme', [AuthController::class, 'updateTheme']);
     Route::get('/schemas', [AuthController::class, 'schemas']);
+    Route::post('/speech-to-text', [SpeechToTextController::class, 'transcribe']);
 
     Route::get('/projects', [ProjectController::class, 'index']);
     Route::get('/projects/{projectUuid}', [ProjectController::class, 'show']);
