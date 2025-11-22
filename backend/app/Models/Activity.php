@@ -47,4 +47,9 @@ class Activity extends Model
 	{
 		return $this->belongsTo(Project::class);
 	}
+
+	public function entries()
+	{
+		return $this->hasMany(ActivityEntry::class);
+	}
 }
