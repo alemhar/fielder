@@ -2,6 +2,35 @@
 
 > Append-only log of completed tasks. New entries go at the top.
 
+## [2025-11-22] Projects & Activities Schema-Driven Design
+**Status**: ✅ Complete  
+**Owner**: (TBD)  
+**Impact**: [BACKEND] [DB] [DOCS]  
+**Changed**: 
+- `backend/database/migrations/2025_11_21_010000_create_projects_table.php`  
+- `backend/database/migrations/2025_11_21_020000_create_activities_table.php`  
+- `backend/database/migrations/0000_01_01_000000_create_tenants_table.php`  
+- `backend/config/schemas.php`  
+- `backend/database/seeders/TenantSeeder.php`  
+- `backend/app/Models/Tenant.php`  
+- `docs/domain/projects.md`  
+
+**Summary**:  
+Introduced schema-driven `projects` and `activities` tables. Each row now has flexible `details` and `details_schema` JSON columns so both web and mobile can render forms from the same per-tenant schema. Defined default project/activity schemas in config and persisted them per tenant on dedicated JSON columns.
+
+**Technical Notes**:  
+- `projects` is a single multi-tenant table with `id`, `tenant_id`, `title`, `details`, `details_schema`, `external_id`, and timestamps.  
+- `activities` is a multi-tenant table linked to `projects`, with `type`, `details`, `details_schema`, and `external_id`.  
+- Default schemas live in `config/schemas.php` and are also stored on the `tenants` table as `project_default_details_schema` and `activity_default_details_schema` for use when creating new projects/activities.  
+- R&D vs regular behaviour is modelled by alternative schemas over the same `projects` table rather than separate tables or a `type` discriminator column.
+
+**Testing**:  
+- [ ] Unit tests added/updated  
+- [ ] Manual verification completed (migrations + basic CRUD)
+
+**Docs Updated**:  
+- `docs/domain/projects.md`
+
 ## [2025-11-21] Introduce Multi-Tenancy and Mobile Auth Flow
 **Status**: ✅ Complete  
 **Owner**: (TBD)  

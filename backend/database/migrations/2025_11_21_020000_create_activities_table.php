@@ -13,11 +13,13 @@ return new class extends Migration
 	{
 		Schema::create('activities', function (Blueprint $table) {
 			$table->id();
+			$table->uuid('uuid')->unique();
 			$table->foreignId('tenant_id')->constrained()->cascadeOnDelete();
 			$table->foreignId('project_id')->constrained()->cascadeOnDelete();
 			$table->string('title');
 			$table->string('type');
 			$table->json('details')->nullable();
+			$table->json('details_schema')->nullable();
 			$table->string('external_id')->nullable();
 			$table->timestamps();
 		});

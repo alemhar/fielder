@@ -13,9 +13,12 @@ return new class extends Migration
 	{
 		Schema::create('tenants', function (Blueprint $table) {
 			$table->id();
+			$table->uuid('uuid')->unique();
 			$table->string('name');
 			$table->string('slug')->unique();
 			$table->json('settings')->nullable();
+			$table->json('project_default_details_schema')->nullable();
+			$table->json('activity_default_details_schema')->nullable();
 			$table->timestamps();
 		});
 	}
