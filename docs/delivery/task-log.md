@@ -2,6 +2,39 @@
 
 > Append-only log of completed tasks. New entries go at the top.
 
+## [2025-11-22] Mobile Activity Entry Composer: Speech-to-Text (Attempted) & Safe Areas
+**Status**: ⚠️ Partial (Speech-to-text blocked by native module linking; safe areas applied)  
+**Owner**: (TBD)  
+**Impact**: [MOBILE] [DOCS]  
+**Changed**: 
+- `FielderApp/package.json` (added @react-native-voice/voice, expo-document-picker, expo-speech)  
+- `FielderApp/src/services/speech-service.ts`  
+- `FielderApp/src/screens/activities/ActivityEntriesScreen.tsx`  
+- `FielderApp/src/screens/auth/LoginScreen.tsx`  
+- `FielderApp/src/screens/dashboard/DashboardScreen.tsx`  
+- `FielderApp/src/screens/projects/ProjectsScreen.tsx`  
+- `FielderApp/src/screens/projects/ProjectActivitiesScreen.tsx`  
+
+**Summary**:  
+Added a microphone icon to the activity entry composer for speech-to-text, plus placeholder attachment/image icons. Applied SafeAreaView and bottom padding to all mobile screens to avoid system UI overlap (status bar, home indicator). Speech-to-text fails in Expo Go and development builds due to native module linking issues with @react-native-voice/voice; will be replaced by a paid cloud service later.
+
+**Technical Notes**:  
+- Speech-to-text implementation uses @react-native-voice/voice, which requires a development build and proper native linking. In Expo Go, the module is null, causing runtime errors.  
+- Fallback error handling shows an alert when speech-to-text is unavailable.  
+- SafeAreaView from react-native-safe-area-context is now used on all screens; bottom padding added to ensure buttons (e.g., “Add entry”) are above the home indicator.  
+- Attachment/image icons are placeholders that show alerts; future work will integrate expo-document-picker or a paid file service.
+
+**Follow-up**:  
+- Replace @react-native-voice/voice with a paid speech-to-text service (e.g., Azure Speech, Google Cloud Speech, AWS Transcribe) for reliable cross-platform support.  
+- Implement actual file/image upload via expo-document-picker and backend attachment endpoints.
+
+**Testing**:  
+- [ ] Unit tests added/updated  
+- [x] Manual verification: SafeAreaView and bottom padding work on device; speech-to-text fails with clear error in Expo Go and dev build.
+
+**Docs Updated**:  
+- `docs/delivery/task-log.md`
+
 ## [2025-11-22] Activity Entries, Tenant Branding & Mobile UI
 **Status**: ✅ Complete  
 **Owner**: (TBD)  
