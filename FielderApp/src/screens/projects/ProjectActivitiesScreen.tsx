@@ -5,6 +5,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/auth-store';
 import { fetchProjectActivities, type ActivitySummary } from '../../services/fielder-service';
 import { useBranding } from '../../theme/branding';
+import { SectionHeader } from '../../components/SectionHeader';
 
 export const ProjectActivitiesScreen: React.FC = () => {
   const route = useRoute<any>();
@@ -55,12 +56,10 @@ export const ProjectActivitiesScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
-      <View style={[styles.header, { borderBottomColor: borderBaseColor }]}>
-        <Text style={[styles.title, { color: primaryTextColor }]}>
-          {projectTitle ?? 'Project activities'}
-        </Text>
-        <Text style={[styles.subtitle, { color: secondaryTextColor }]}>Select an activity to view its entries.</Text>
-      </View>
+      <SectionHeader
+        title={projectTitle ?? 'Project activities'}
+        subtitle="Select an activity to view its entries."
+      />
 
       <Text style={[styles.status, { color: mutedTextColor }]}>
         {isLoading ? 'Loading activities...' : error ? error : null}
@@ -100,18 +99,7 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
     paddingBottom: 32,
   },
-  title: {
-    color: '#fff',
-    fontSize: 22,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  subtitle: {
-    color: '#ccc',
-    marginBottom: 16,
-  },
   status: {
-    color: '#ff6b6b',
     marginBottom: 8,
   },
   list: {
@@ -120,25 +108,17 @@ const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 24,
   },
-  header: {
-    marginBottom: 16,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-  },
   item: {
     borderWidth: 1,
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 12,
     marginBottom: 8,
-    backgroundColor: 'rgba(0,0,0,0.2)',
   },
   itemTitle: {
-    color: '#fff',
     marginBottom: 4,
   },
   itemMeta: {
-    color: '#aaa',
     fontSize: 12,
   },
 });

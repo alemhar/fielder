@@ -11,6 +11,7 @@ import {
 } from '../../services/fielder-service';
 import { startSpeechToText } from '../../services/speech-service';
 import { useBranding } from '../../theme/branding';
+import { SectionHeader } from '../../components/SectionHeader';
 import Voice from '@react-native-voice/voice';
 
 export const ActivityEntriesScreen: React.FC = () => {
@@ -119,12 +120,7 @@ export const ActivityEntriesScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
-      <Text style={[styles.title, { color: primaryTextColor }]}>
-        {activityTitle ?? 'Activity entries'}
-      </Text>
-      {projectTitle ? (
-        <Text style={[styles.subtitle, { color: secondaryTextColor }]}>{projectTitle}</Text>
-      ) : null}
+      <SectionHeader title={activityTitle ?? 'Activity entries'} subtitle={projectTitle} />
 
       <Text style={[styles.status, { color: mutedTextColor }]}>
         {isLoading ? 'Loading entries...' : error ? error : null}
@@ -265,8 +261,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   newEntryContainer: {
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.1)',
     paddingTop: 8,
     paddingBottom: 16,
   },

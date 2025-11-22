@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/auth-store';
 import { fetchProjects, type ProjectSummary } from '../../services/fielder-service';
 import { useBranding } from '../../theme/branding';
+import { SectionHeader } from '../../components/SectionHeader';
 
 export const ProjectsScreen: React.FC = () => {
   const token = useAuthStore((state) => state.token);
@@ -52,10 +53,7 @@ export const ProjectsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
-      <View style={[styles.header, { borderBottomColor: borderBaseColor }]}>
-        <Text style={[styles.title, { color: primaryTextColor }]}>Projects</Text>
-        <Text style={[styles.subtitle, { color: secondaryTextColor }]}>Select a project to view its activities.</Text>
-      </View>
+      <SectionHeader title="Projects" subtitle="Select a project to view its activities." />
 
       <Text style={[styles.status, { color: mutedTextColor }]}>
         {isLoading ? 'Loading projects...' : error ? error : null}
@@ -91,17 +89,7 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
     paddingBottom: 32,
   },
-  title: {
-    color: '#fff',
-    fontSize: 22,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  subtitle: {
-    color: '#ccc',
-  },
   status: {
-    color: '#ff6b6b',
     marginBottom: 8,
   },
   list: {
@@ -110,20 +98,12 @@ const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 24,
   },
-  header: {
-    marginBottom: 16,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-  },
   item: {
     borderWidth: 1,
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 12,
     marginBottom: 8,
-    backgroundColor: 'rgba(0,0,0,0.2)',
   },
-  itemTitle: {
-    color: '#fff',
-  },
+  itemTitle: {},
 });
