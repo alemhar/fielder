@@ -1,47 +1,99 @@
 import { create } from 'zustand';
-import { AuthUser, Company, login as loginRequest } from '../services/auth-service';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthUser, Company, LoginResponse, fetchMe, updateTheme, login as loginRequest } from '../services/auth-service';
 import { saveAuth, clearAuth } from '../storage/auth-storage';
 
-type AuthState = {
+interface AuthState {
+  token: string | null;
   user: AuthUser | null;
   company: Company | null;
-  token: string | null;
+  isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  initialize: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  setSession: (payload: { user: AuthUser; company: Company; token: string }) => void;
-};
+  updateTheme: (mode: 'light' | 'dark') => Promise<void>;
+}
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  company: null,
-  token: null,
-  isLoading: false,
-  error: null,
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      token: null,
+      user: null,
+      company: null,
+      isAuthenticated: false,
+      isLoading: false,
+      error: null,
 
-  login: async (email, password) => {
-    set({ isLoading: true, error: null });
+      initialize: async () => {
+        const token = get().token;
+        if (!token) {
+          set({ isAuthenticated: false, isLoading: false });
+          return;
+        }
 
-    try {
-      const { user, company, token } = await loginRequest(email, password);
-      set({ user, company, token, isLoading: false, error: null });
-      await saveAuth({ user, company, token });
-      // TODO: persist token/user to secure storage if you want session restore
-    } catch (err) {
-      set({
-        isLoading: false,
-        error: 'Invalid email or password',
-      });
+        set({ isLoading: true, error: null });
+        try {
+          const data = await fetchMe(token);
+          set({
+            user: data.user,
+            company: data.company,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+          // Sync theme to global store
+          const { setThemeMode } = await import('./theme-store');
+          setThemeMode(data.user.theme_mode);
+        } catch (err) {
+          set({ token: null, user: null, company: null, isAuthenticated: false, isLoading: false, error: 'Session expired' });
+        }
+      },
+
+      login: async (email: string, password: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          const data: LoginResponse = await loginRequest(email, password);
+          set({
+            token: data.token,
+            user: data.user,
+            company: data.company,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+          // Sync theme to global store
+          const { setThemeMode } = await import('./theme-store');
+          setThemeMode(data.user.theme_mode);
+          await saveAuth({ user: data.user, company: data.company, token: data.token });
+        } catch {
+          set({ isLoading: false, error: 'Login failed' });
+        }
+      },
+
+      logout: () => {
+        set({ token: null, user: null, company: null, isAuthenticated: false, error: null });
+        void clearAuth();
+      },
+
+      updateTheme: async (mode: 'light' | 'dark') => {
+        const token = get().token;
+        if (!token) return;
+        try {
+          const { user } = await updateTheme(token, mode);
+          set({ user });
+          // Sync theme to global store
+          const { setThemeMode } = await import('./theme-store');
+          setThemeMode(mode);
+        } catch {
+          // Optionally show error
+        }
+      },
+    }),
+    {
+      name: 'auth-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({ token: state.token, user: state.user, company: state.company }),
     }
-  },
-
-  logout: () => {
-    set({ user: null, company: null, token: null });
-    void clearAuth();
-  },
-
-  setSession: ({ user, company, token }) => {
-    set({ user, company, token });
-  },
-}));
+  )
+);

@@ -1,8 +1,9 @@
 import { API_BASE_URL } from '../config/api';
 
-export type AuthUser = {
+export interface AuthUser {
   id: string;
   email: string;
+  theme_mode: 'light' | 'dark';
 };
 
 export type CompanyBranding = {
@@ -58,6 +59,23 @@ export const fetchMe = async (token: string): Promise<MeResponse> => {
 
   if (!res.ok) {
     throw new Error('Failed to restore session');
+  }
+
+  return res.json();
+};
+
+export const updateTheme = async (token: string, themeMode: 'light' | 'dark'): Promise<{ user: AuthUser }> => {
+  const res = await fetch(`${API_BASE_URL}/api/theme`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ theme_mode: themeMode }),
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to update theme');
   }
 
   return res.json();

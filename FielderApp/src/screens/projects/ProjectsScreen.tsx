@@ -52,8 +52,10 @@ export const ProjectsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
-      <Text style={[styles.title, { color: primaryTextColor }]}>Projects</Text>
-      <Text style={[styles.subtitle, { color: secondaryTextColor }]}>Select a project to view its activities.</Text>
+      <View style={[styles.header, { borderBottomColor: borderBaseColor }]}>
+        <Text style={[styles.title, { color: primaryTextColor }]}>Projects</Text>
+        <Text style={[styles.subtitle, { color: secondaryTextColor }]}>Select a project to view its activities.</Text>
+      </View>
 
       <Text style={[styles.status, { color: mutedTextColor }]}>
         {isLoading ? 'Loading projects...' : error ? error : null}
@@ -97,7 +99,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: '#ccc',
-    marginBottom: 16,
   },
   status: {
     color: '#ff6b6b',
@@ -108,6 +109,11 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 24,
+  },
+  header: {
+    marginBottom: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
   },
   item: {
     borderWidth: 1,

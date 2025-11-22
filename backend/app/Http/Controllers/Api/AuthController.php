@@ -38,6 +38,7 @@ class AuthController extends Controller
 			'user' => [
 				'id' => (string) $user->id,
 				'email' => $user->email,
+				'theme_mode' => $user->theme_mode ?? 'dark',
 			],
 			'company' => [
 				'id' => (string) $user->tenant_id,
@@ -69,6 +70,7 @@ class AuthController extends Controller
 			'user' => [
 				'id' => (string) $user->id,
 				'email' => $user->email,
+				'theme_mode' => $user->theme_mode ?? 'dark',
 			],
 			'company' => [
 				'id' => (string) $user->tenant_id,
@@ -84,7 +86,27 @@ class AuthController extends Controller
 		]);
 	}
 
-	public function schemas(Request $request): JsonResponse
+	public function updateTheme(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'theme_mode' => 'required|in:light,dark',
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+        $user->theme_mode = $validated['theme_mode'];
+        $user->save();
+
+        return response()->json([
+            'user' => [
+                'id' => (string) $user->id,
+                'email' => $user->email,
+                'theme_mode' => $user->theme_mode,
+            ],
+        ]);
+    }
+
+    public function schemas(Request $request): JsonResponse
 	{
 		/** @var User $user */
 		$user = $request->user();

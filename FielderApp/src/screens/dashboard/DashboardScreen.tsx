@@ -11,6 +11,7 @@ export const DashboardScreen: React.FC = () => {
   const user = useAuthStore((state) => state.user);
   const token = useAuthStore((state) => state.token);
   const logout = useAuthStore((state) => state.logout);
+  const updateTheme = useAuthStore((state) => state.updateTheme);
   const navigation = useNavigation<any>();
   const {
     primaryColor,
@@ -90,9 +91,10 @@ export const DashboardScreen: React.FC = () => {
                       styles.themeToggleOption,
                       mode === themeMode && { borderColor: primaryColor },
                     ]}
-                    onPress={() => {
+                    onPress={async () => {
                       setThemeMode(mode);
                       setIsMenuOpen(false);
+                      await updateTheme(mode);
                     }}
                   >
                     <Text
@@ -180,6 +182,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     marginBottom: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
   },
   menuButton: {
     paddingHorizontal: 8,

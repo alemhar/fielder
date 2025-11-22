@@ -26,6 +26,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'theme_mode',
     ];
 
     /**
@@ -59,6 +60,9 @@ class User extends Authenticatable
         static::creating(function (self $user) {
             if (empty($user->uuid)) {
                 $user->uuid = (string) Str::uuid();
+            }
+            if (!isset($user->theme_mode)) {
+                $user->theme_mode = 'dark';
             }
         });
     }
