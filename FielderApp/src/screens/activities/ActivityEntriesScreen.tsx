@@ -37,7 +37,7 @@ export const ActivityEntriesScreen: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [showAttachModal, setShowAttachModal] = useState(false);
-  const [selectedAttachment, setSelectedAttachment] = useState<DocumentPicker.DocumentPickerResult | null>(null);
+  const [selectedAttachments, setSelectedAttachments] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
 
   useEffect(() => {
     if (!token || !activityUuid) return;
@@ -71,18 +71,18 @@ export const ActivityEntriesScreen: React.FC = () => {
   };
 
   const handleAddEntry = async () => {
-    if (!token || !activityUuid || (!newBody.trim() && !selectedAttachment)) return;
+    if (!token || !activityUuid || (!newBody.trim() && selectedAttachments.length === 0)) return;
     setIsSaving(true);
     setError(null);
     try {
       const created = await createActivityEntry(activityUuid, token, {
         body: newBody.trim() || undefined,
         data: null,
-        attachments: selectedAttachment && !selectedAttachment.canceled ? selectedAttachment.assets : undefined,
+        attachments: selectedAttachments.length > 0 ? selectedAttachments : undefined,
       });
       setEntries((prev) => [created, ...prev]);
       setNewBody('');
-      setSelectedAttachment(null);
+      setSelectedAttachments([]);
     } catch {
       setError('Failed to save entry');
     } finally {
@@ -93,12 +93,12 @@ export const ActivityEntriesScreen: React.FC = () => {
   const handleAttachFile = async () => {
     setShowAttachModal(false);
     try {
-      const result = await DocumentPicker.getDocumentAsync({});
+      const result = await DocumentPicker.getDocumentAsync({ allowMultipleSelection: true });
       if (!result.canceled && result.assets.length > 0) {
-        setSelectedAttachment(result);
+        setSelectedAttachments((prev) => [...prev, ...result.assets]);
       }
     } catch {
-      Alert.alert('Error', 'Failed to pick document');
+      Alert.alert('Error', 'Failed to pick documents');
     }
   };
 
@@ -112,8 +112,8 @@ export const ActivityEntriesScreen: React.FC = () => {
     Alert.alert('Capture photo', 'Camera capture UI to be implemented');
   };
 
-  const handleClearAttachment = () => {
-    setSelectedAttachment(null);
+  const handleClearAttachment = (index: number) => {
+    setSelectedAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -143,19 +143,17 @@ export const ActivityEntriesScreen: React.FC = () => {
             ) : null}
           </View>
         ))}
-        {selectedAttachment && !selectedAttachment.canceled && selectedAttachment.assets.length > 0 && (
-          <View style={[styles.attachmentPreview, { backgroundColor: cardBackgroundColor, borderColor: borderBaseColor }]}>
+        {selectedAttachments.map((asset, index) => (
+          <View key={index} style={[styles.attachmentPreview, { backgroundColor: cardBackgroundColor, borderColor: borderBaseColor }]}>
             <View style={styles.attachmentRow}>
               <MaterialIcons name="attach-file" size={20} color={primaryTextColor} />
-              <Text style={[styles.attachmentName, { color: primaryTextColor }]}>
-                {selectedAttachment.assets[0].name}
-              </Text>
-              <TouchableOpacity onPress={handleClearAttachment}>
+              <Text style={[styles.attachmentName, { color: primaryTextColor }]}>{asset.name}</Text>
+              <TouchableOpacity onPress={() => handleClearAttachment(index)}>
                 <MaterialIcons name="close" size={20} color={mutedTextColor} />
               </TouchableOpacity>
             </View>
           </View>
-        )}
+        ))}
       </ScrollView>
 
       <View style={[styles.newEntryContainer, { borderTopColor: borderBaseColor }]}>
