@@ -116,6 +116,16 @@ export const ActivityEntriesScreen: React.FC = () => {
         if (created) {
           setEntries((prev) => [created, ...prev]);
         }
+      } else if (cameraPhotos.length === 0 && regularFiles.length === 0) {
+        // No attachments - use regular endpoint
+        const created = await createActivityEntry(activityUuid, token, {
+          body: newBody.trim() || undefined,
+          data: null,
+        });
+        console.log('handleAddEntry created entry:', created);
+        if (created) {
+          setEntries((prev) => [created, ...prev]);
+        }
       } else {
         // Mixed types - not supported yet
         Alert.alert('Error', 'Cannot mix camera photos and file attachments in the same entry');
@@ -445,7 +455,7 @@ const styles = StyleSheet.create({
   },
   newEntryContainer: {
     paddingTop: 8,
-    paddingBottom: 16,
+    paddingBottom: 8,
   },
   inputRow: {
     flexDirection: 'row',
