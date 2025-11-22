@@ -298,6 +298,30 @@ class ActivityEntryController extends Controller
 		]);
 	}
 
+	public function destroy(Request $request, string $entryUuid): JsonResponse
+	{
+		$user = $request->user();
+		$tenantId = $user->tenant_id;
+
+		$entry = ActivityEntry::where('tenant_id', $tenantId)
+			->where('uuid', $entryUuid)
+			->firstOrFail();
+
+		// Delete attachments and their files
+		foreach ($entry->attachments as $attachment) {
+			if ($attachment->file_path) {
+				Storage::disk('public')->delete($attachment->file_path);
+			}
+			$attachment->delete();
+		}
+
+		$entry->delete();
+
+		return response()->json([
+			'message' => 'Entry deleted successfully',
+		]);
+	}
+
 	public function update(Request $request, string $entryUuid): JsonResponse
 	{
 		$user = $request->user();

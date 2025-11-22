@@ -82,5 +82,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/activities/{activityUuid}/entries', [ActivityEntryController::class, 'storeForActivity']);
     Route::get('/entries/{entryUuid}', [ActivityEntryController::class, 'show']);
     Route::put('/entries/{entryUuid}', [ActivityEntryController::class, 'update']);
+    Route::delete('/entries/{entryUuid}', [ActivityEntryController::class, 'destroy']);
     Route::delete('/entries/{entryUuid}/attachments/{attachmentUuid}', [ActivityEntryController::class, 'deleteAttachment']);
 });

@@ -220,6 +220,21 @@ export async function updateActivityEntry(
   return json.data;
 }
 
+export async function deleteActivityEntry(entryUuid: string, token: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/api/entries/${entryUuid}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+    },
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || 'Failed to delete activity entry');
+  }
+}
+
 export async function deleteActivityEntryAttachment(entryUuid: string, attachmentUuid: string, token: string): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/api/entries/${entryUuid}/attachments/${attachmentUuid}`, {
     method: 'DELETE',

@@ -11,6 +11,7 @@ import {
   fetchActivityEntries,
   createActivityEntry,
   createActivityEntryFromCamera,
+  deleteActivityEntry,
   type ActivityEntryDto,
 } from '../../services/fielder-service';
 import { startCloudSpeechToText } from '../../services/cloud-speech-service';
@@ -159,6 +160,29 @@ export const ActivityEntriesScreen: React.FC = () => {
     setSelectedAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleDeleteEntry = async (entryUuid: string) => {
+    Alert.alert(
+      'Delete Entry',
+      'Are you sure you want to delete this entry? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteActivityEntry(entryUuid, token);
+              setEntries((prev) => prev.filter((e) => e.uuid !== entryUuid));
+            } catch (err) {
+              console.error('Failed to delete entry:', err);
+              Alert.alert('Error', 'Failed to delete entry');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const handleTakePicture = async () => {
     if (!cameraRef.current) return;
     try {
@@ -209,29 +233,31 @@ export const ActivityEntriesScreen: React.FC = () => {
         {entries.map((entry) => (
           <TouchableOpacity
             key={entry.uuid}
-            style={[styles.entryCard, { backgroundColor: cardBackgroundColor }]}
-            onPress={() =>
-              navigation.navigate('ActivityEntryDetail', {
-                entryUuid: entry.uuid,
-                activityTitle,
-                projectTitle,
-              })
-            }
+            style={[styles.entryItem, { backgroundColor: cardBackgroundColor, borderColor: borderBaseColor }]}
+            onPress={() => navigation.navigate('ActivityEntryDetail', { entryUuid: entry.uuid })}
           >
-            <Text style={[styles.entryMeta, { color: mutedTextColor }]}>
-              {entry.created_at ?? ''}
-            </Text>
-            {entry.user ? (
-              <Text style={[styles.entryMeta, { color: mutedTextColor }]}>{`By ${entry.user.email}`}</Text>
-            ) : null}
-            {entry.body ? (
-              <Text style={[styles.entryBody, { color: primaryTextColor }]}>{entry.body}</Text>
-            ) : null}
-            {entry.attachments.length > 0 ? (
-              <Text style={[styles.entryMeta, { color: mutedTextColor }]}>
-                {entry.attachments.length} attachment{entry.attachments.length === 1 ? '' : 's'}
+            <View style={styles.entryHeader}>
+              <Text style={[styles.entryBody, { color: primaryTextColor }]}>
+                {entry.body || <Text style={[styles.placeholderText, { color: mutedTextColor }]}>No text</Text>}
               </Text>
-            ) : null}
+              <TouchableOpacity
+                onPress={() => handleDeleteEntry(entry.uuid)}
+                style={styles.deleteButton}
+              >
+                <MaterialIcons name="delete-outline" size={20} color="#ef4444" />
+              </TouchableOpacity>
+            </View>
+            <Text style={[styles.entryDate, { color: secondaryTextColor }]}>
+              {new Date(entry.created_at).toLocaleString()}
+            </Text>
+            {entry.attachments && entry.attachments.length > 0 && (
+              <View style={styles.attachmentRow}>
+                <MaterialIcons name="attach-file" size={16} color={mutedTextColor} />
+                <Text style={[styles.attachmentCount, { color: mutedTextColor }]}>
+                  {entry.attachments.length} attachment{entry.attachments.length > 1 ? 's' : ''}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
         ))}
         {selectedAttachments.map((asset, index) => (
@@ -383,19 +409,39 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
   },
-  entryCard: {
+  entryItem: {
     backgroundColor: 'rgba(0,0,0,0.3)',
     borderRadius: 8,
-    padding: 10,
+    padding: 12,
     marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#333',
   },
-  entryMeta: {
-    color: '#aaa',
-    fontSize: 12,
+  entryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
   entryBody: {
     color: '#fff',
-    marginTop: 4,
+    flex: 1,
+    marginRight: 8,
+  },
+  deleteButton: {
+    padding: 4,
+  },
+  entryDate: {
+    color: '#aaa',
+    fontSize: 12,
+    marginTop: 8,
+  },
+  attachmentCount: {
+    color: '#aaa',
+    fontSize: 12,
+  },
+  placeholderText: {
+    color: '#666',
+    fontStyle: 'italic',
   },
   newEntryContainer: {
     paddingTop: 8,
