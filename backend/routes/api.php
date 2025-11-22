@@ -15,6 +15,60 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/schemas', [AuthController::class, 'schemas']);
     Route::post('/speech-to-text', [SpeechToTextController::class, 'transcribe']);
 
+    // Temporary debug route
+    Route::post('/debug-upload', function (\Illuminate\Http\Request $request) {
+        $allFiles = $request->allFiles();
+        $attachments = $allFiles['attachments'] ?? [];
+        
+        // Handle both single file and array of files
+        if (isset($attachments['name'])) {
+            // Single file
+            $attachments = [$attachments];
+        } elseif (!is_array($attachments)) {
+            $attachments = [];
+        }
+        
+        $fileInfo = [];
+        foreach ($attachments as $index => $file) {
+            if (is_array($file)) {
+                $fileInfo["attachments.$index"] = [
+                    'isArray' => true,
+                    'keys' => array_keys($file),
+                    'name' => $file['name'] ?? 'missing',
+                    'type' => $file['type'] ?? 'missing',
+                    'uri' => $file['uri'] ?? 'missing',
+                ];
+            } elseif ($file instanceof \Illuminate\Http\UploadedFile) {
+                try {
+                    $fileInfo["attachments.$index"] = [
+                        'isUploadedFile' => true,
+                        'originalName' => $file->getClientOriginalName(),
+                        'mimeType' => $file->getMimeType(),
+                        'size' => $file->getSize(),
+                        'error' => $file->getError(),
+                        'isValid' => $file->isValid(),
+                        'path' => $file->getPath(),
+                    ];
+                } catch (\Exception $e) {
+                    $fileInfo["attachments.$index"] = [
+                        'isUploadedFile' => true,
+                        'error' => $e->getMessage(),
+                        'originalName' => method_exists($file, 'getClientOriginalName') ? $file->getClientOriginalName() : 'N/A',
+                    ];
+                }
+            }
+        }
+        
+        return response()->json([
+            'hasFile' => $request->hasFile('attachments'),
+            'allFilesStructure' => array_keys($allFiles),
+            'attachmentsType' => gettype($allFiles['attachments'] ?? null),
+            'attachments' => $fileInfo,
+            'input' => $request->input(),
+            'headers' => collect($request->headers->all())->only(['content-type', 'content-length'])->toArray(),
+        ]);
+    });
+
     Route::get('/projects', [ProjectController::class, 'index']);
     Route::get('/projects/{projectUuid}', [ProjectController::class, 'show']);
 

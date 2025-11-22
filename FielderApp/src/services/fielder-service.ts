@@ -1,4 +1,6 @@
 import { API_BASE_URL } from '../config/api';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
 
 export type ProjectSummary = {
   uuid: string;
@@ -95,13 +97,17 @@ export async function createActivityEntry(
   token: string,
   data: { body?: string; data?: any; attachments?: DocumentPicker.DocumentPickerAsset[] }
 ): Promise<ActivityEntryDto> {
+  console.log('createActivityEntry payload:', { body: data.body, data: data.data, attachmentsCount: data.attachments?.length });
   const formData = new FormData();
   if (data.body) formData.append('body', data.body);
   if (data.data) formData.append('data', JSON.stringify(data.data));
 
   if (data.attachments && data.attachments.length > 0) {
     data.attachments.forEach((asset, index) => {
-      formData.append(`attachments[${index}]`, {
+      console.log(`Appending attachment ${index}:`, { uri: asset.uri, type: asset.mimeType, name: asset.name });
+      
+      // Use the original working format
+      formData.append('attachments[]', {
         uri: asset.uri,
         type: asset.mimeType || 'application/octet-stream',
         name: asset.name,
@@ -113,17 +119,23 @@ export async function createActivityEntry(
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
       // Do NOT set Content-Type for FormData; let the browser set it with boundary
     },
     body: formData,
   });
 
+  console.log('createActivityEntry response status:', res.status);
   if (!res.ok) {
     const err = await res.json();
+    console.error('createActivityEntry error response:', JSON.stringify(err, null, 2));
     throw new Error(err.message || 'Failed to create activity entry');
   }
 
-  const json: { data: ActivityEntryDto } = await res.json();
+  const text = await res.text();
+  console.log('createActivityEntry raw response:', text);
+  const json: { data: ActivityEntryDto } = JSON.parse(text);
+  console.log('createActivityEntry success:', json);
   return json.data;
 }
 

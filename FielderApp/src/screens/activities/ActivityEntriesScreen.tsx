@@ -1,9 +1,11 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Button, TouchableOpacity, Alert, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import * as FileSystem from 'expo-file-system/legacy';
 import { useAuthStore } from '../../stores/auth-store';
 import {
   fetchActivityEntries,
@@ -39,6 +41,9 @@ export const ActivityEntriesScreen: React.FC = () => {
   const [isListening, setIsListening] = useState(false);
   const [showAttachModal, setShowAttachModal] = useState(false);
   const [selectedAttachments, setSelectedAttachments] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
+  const [showCameraModal, setShowCameraModal] = useState(false);
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const cameraRef = useRef<CameraView>(null);
 
   const loadEntries = useCallback(async () => {
     if (!token || !activityUuid) return;
@@ -87,10 +92,14 @@ export const ActivityEntriesScreen: React.FC = () => {
         data: null,
         attachments: selectedAttachments.length > 0 ? selectedAttachments : undefined,
       });
-      setEntries((prev) => [created, ...prev]);
+      console.log('handleAddEntry created entry:', created);
+      if (created) {
+        setEntries((prev) => [created, ...prev]);
+      }
       setNewBody('');
       setSelectedAttachments([]);
-    } catch {
+    } catch (err) {
+      console.error('handleAddEntry error:', err);
       setError('Failed to save entry');
     } finally {
       setIsSaving(false);
@@ -109,18 +118,40 @@ export const ActivityEntriesScreen: React.FC = () => {
     }
   };
 
-  const handleAttachPhoto = () => {
+  const handleCapturePhoto = async () => {
     setShowAttachModal(false);
-    Alert.alert('Attach photo', 'Photo attachment UI to be implemented');
-  };
-
-  const handleCapturePhoto = () => {
-    setShowAttachModal(false);
-    Alert.alert('Capture photo', 'Camera capture UI to be implemented');
+    if (!cameraPermission) {
+      const result = await requestCameraPermission();
+      if (!result.granted) {
+        Alert.alert('Permission required', 'Camera permission is required to take photos.');
+        return;
+      }
+    }
+    setShowCameraModal(true);
   };
 
   const handleClearAttachment = (index: number) => {
     setSelectedAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleTakePicture = async () => {
+    if (!cameraRef.current) return;
+    try {
+      const photo = await cameraRef.current.takePictureAsync();
+      if (photo) {
+        const asset: DocumentPicker.DocumentPickerAsset = {
+          uri: photo.uri,
+          name: `photo_${Date.now()}.jpg`,
+          mimeType: 'image/jpeg',
+          size: undefined,
+        };
+        setSelectedAttachments((prev) => [...prev, asset]);
+        setShowCameraModal(false);
+      }
+    } catch (err) {
+      console.error('Failed to take photo:', err);
+      Alert.alert('Error', 'Failed to take photo');
+    }
   };
 
   return (
@@ -237,11 +268,7 @@ export const ActivityEntriesScreen: React.FC = () => {
           <View style={[styles.attachModal, { backgroundColor: cardBackgroundColor, borderColor: borderBaseColor }]}>
             <TouchableOpacity style={styles.attachOption} onPress={handleAttachFile}>
               <MaterialIcons name="attach-file" size={24} color={primaryTextColor} />
-              <Text style={[styles.attachOptionText, { color: primaryTextColor }]}>Attach File</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.attachOption} onPress={handleAttachPhoto}>
-              <MaterialIcons name="photo" size={24} color={primaryTextColor} />
-              <Text style={[styles.attachOptionText, { color: primaryTextColor }]}>Photo Library</Text>
+              <Text style={[styles.attachOptionText, { color: primaryTextColor }]}>Attach File/Photo</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.attachOption} onPress={handleCapturePhoto}>
               <MaterialIcons name="photo-camera" size={24} color={primaryTextColor} />
@@ -249,6 +276,21 @@ export const ActivityEntriesScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
+      </Modal>
+
+      {/* Camera Modal */}
+      <Modal visible={showCameraModal} animationType="slide">
+        <SafeAreaView style={styles.cameraContainer}>
+          <CameraView style={styles.camera} facing="back" ref={cameraRef} />
+          <View style={styles.cameraOverlay}>
+            <TouchableOpacity style={styles.closeCamera} onPress={() => setShowCameraModal(false)}>
+              <MaterialIcons name="close" size={32} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.captureButton} onPress={handleTakePicture}>
+              <View style={styles.captureInner} />
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
       </Modal>
     </SafeAreaView>
   );
@@ -384,5 +426,41 @@ const styles = StyleSheet.create({
   attachOptionText: {
     fontSize: 16,
     marginLeft: 16,
+  },
+  cameraContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  camera: {
+    flex: 1,
+  },
+  cameraOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'transparent',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  closeCamera: {
+    alignSelf: 'flex-start',
+  },
+  captureButton: {
+    alignSelf: 'flex-end',
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  captureInner: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#ff4444',
   },
 });

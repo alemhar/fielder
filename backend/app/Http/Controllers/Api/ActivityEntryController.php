@@ -66,12 +66,38 @@ class ActivityEntryController extends Controller
 			'body' => ['nullable', 'string'],
 			'data' => ['nullable', 'array'],
 			'attachments' => ['nullable', 'array'],
-			'attachments.*' => ['file'],
+			// 'attachments.*' => ['file', 'max:10240', 'mimes:jpeg,jpg,png,pdf,doc,docx,txt'],
 		]);
 
 		$body = $validated['body'] ?? null;
 		$data = $validated['data'] ?? null;
 		$attachmentsFiles = $request->file('attachments', []);
+
+		// Debug: check if files are received
+		\Log::info('Attachments received:', [
+			'count' => count($attachmentsFiles),
+			'hasAttachments' => $request->hasFile('attachments'),
+			'allFiles' => $request->allFiles(),
+			'requestInput' => $request->input(),
+			'requestAll' => $request->all(),
+		]);
+
+		// Debug: log file info
+		if (!empty($attachmentsFiles)) {
+			foreach ($attachmentsFiles as $index => $file) {
+				\Log::info("Attachment $index", [
+					'originalName' => $file->getClientOriginalName(),
+					'mimeType' => $file->getMimeType(),
+					'size' => $file->getSize(),
+					'error' => $file->getError(),
+					'errorMessage' => $file->getErrorMessage(),
+					'path' => $file->getPath(),
+					'isValid' => $file->isValid(),
+				]);
+			}
+		} else {
+			\Log::warning('No attachments received');
+		}
 
 		if ($body === null && $data === null && empty($attachmentsFiles)) {
 			return response()->json([
