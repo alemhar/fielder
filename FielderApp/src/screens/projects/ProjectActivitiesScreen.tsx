@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useAuthStore } from '../../stores/auth-store';
 import { fetchProjectActivities, type ActivitySummary } from '../../services/fielder-service';
 import { useBranding } from '../../theme/branding';
-import { SectionHeader } from '../../components/SectionHeader';
 
 export const ProjectActivitiesScreen: React.FC = () => {
   const route = useRoute<any>();
@@ -56,10 +56,20 @@ export const ProjectActivitiesScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
-      <SectionHeader
-        title={projectTitle ?? 'Project activities'}
-        subtitle="Select an activity to view its entries."
-      />
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <MaterialIcons name="arrow-back" size={24} color={primaryTextColor} />
+        </TouchableOpacity>
+        <View style={styles.titleColumn}>
+          <Text style={[styles.headerTitle, { color: primaryColor }]}>
+            {projectTitle ?? 'Project activities'}
+          </Text>
+          <Text style={[styles.headerSubtitle, { color: mutedTextColor }]}>
+            Select an activity to view its entries.
+          </Text>
+        </View>
+        <View style={styles.placeholder} />
+      </View>
 
       <Text style={[styles.status, { color: mutedTextColor }]}>
         {isLoading ? 'Loading activities...' : error ? error : null}
@@ -98,6 +108,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 24,
     paddingBottom: 32,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  titleColumn: {
+    flex: 1,
+    marginHorizontal: 16,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: '600',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    marginTop: 2,
+  },
+  placeholder: {
+    width: 24,
   },
   status: {
     marginBottom: 8,

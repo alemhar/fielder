@@ -131,4 +131,105 @@ class ActivityEntryController extends Controller
 			],
 		], 201);
 	}
+
+	public function show(Request $request, string $entryUuid): JsonResponse
+	{
+		$user = $request->user();
+		$tenantId = $user->tenant_id;
+
+		$entry = ActivityEntry::where('tenant_id', $tenantId)
+			->where('uuid', $entryUuid)
+			->with(['attachments', 'user'])
+			->firstOrFail();
+
+		return response()->json([
+			'data' => [
+				'uuid' => $entry->uuid,
+				'body' => $entry->body,
+				'data' => $entry->data,
+				'created_at' => optional($entry->created_at)->toIso8601String(),
+				'user' => $entry->user ? [
+					'id' => (string) $entry->user->id,
+					'email' => $entry->user->email,
+				] : null,
+				'attachments' => $entry->attachments->map(function ($attachment) {
+					return [
+						'uuid' => $attachment->uuid,
+						'original_name' => $attachment->original_name,
+						'mime_type' => $attachment->mime_type,
+						'size' => $attachment->size,
+						'meta' => $attachment->meta,
+					];
+				}),
+			],
+		]);
+	}
+
+	public function update(Request $request, string $entryUuid): JsonResponse
+	{
+		$user = $request->user();
+		$tenantId = $user->tenant_id;
+
+		$entry = ActivityEntry::where('tenant_id', $tenantId)
+			->where('uuid', $entryUuid)
+			->firstOrFail();
+
+		$validated = $request->validate([
+			'body' => ['nullable', 'string'],
+			'data' => ['nullable', 'array'],
+		]);
+
+		$entry->update([
+			'body' => $validated['body'] ?? null,
+			'data' => $validated['data'] ?? null,
+		]);
+
+		$entry->load(['attachments', 'user']);
+
+		return response()->json([
+			'data' => [
+				'uuid' => $entry->uuid,
+				'body' => $entry->body,
+				'data' => $entry->data,
+				'created_at' => optional($entry->created_at)->toIso8601String(),
+				'user' => $entry->user ? [
+					'id' => (string) $entry->user->id,
+					'email' => $entry->user->email,
+				] : null,
+				'attachments' => $entry->attachments->map(function ($attachment) {
+					return [
+						'uuid' => $attachment->uuid,
+						'original_name' => $attachment->original_name,
+						'mime_type' => $attachment->mime_type,
+						'size' => $attachment->size,
+						'meta' => $attachment->meta,
+					];
+				}),
+			],
+		]);
+	}
+
+	public function deleteAttachment(Request $request, string $entryUuid, string $attachmentUuid): JsonResponse
+	{
+		$user = $request->user();
+		$tenantId = $user->tenant_id;
+
+		$entry = ActivityEntry::where('tenant_id', $tenantId)
+			->where('uuid', $entryUuid)
+			->firstOrFail();
+
+		$attachment = $entry->attachments()
+			->where('tenant_id', $tenantId)
+			->where('uuid', $attachmentUuid)
+			->firstOrFail();
+
+		// Delete file from storage
+		if ($attachment->file_path) {
+			Storage::disk('public')->delete($attachment->file_path);
+		}
+
+		$attachment->delete();
+
+		return response()->json(null, 204);
+	}
 }

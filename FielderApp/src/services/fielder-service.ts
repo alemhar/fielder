@@ -126,3 +126,55 @@ export async function createActivityEntry(
   const json: { data: ActivityEntryDto } = await res.json();
   return json.data;
 }
+
+export async function fetchActivityEntry(entryUuid: string, token: string): Promise<ActivityEntryDto> {
+  const res = await fetch(`${API_BASE_URL}/api/entries/${entryUuid}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to load activity entry');
+  }
+
+  const json: { data: ActivityEntryDto } = await res.json();
+  return json.data;
+}
+
+export async function updateActivityEntry(
+  entryUuid: string,
+  token: string,
+  data: { body?: string | null; data?: any }
+): Promise<ActivityEntryDto> {
+  const res = await fetch(`${API_BASE_URL}/api/entries/${entryUuid}`, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || 'Failed to update activity entry');
+  }
+
+  const json: { data: ActivityEntryDto } = await res.json();
+  return json.data;
+}
+
+export async function deleteActivityEntryAttachment(entryUuid: string, attachmentUuid: string, token: string): Promise<void> {
+  const res = await fetch(`${API_BASE_URL}/api/entries/${entryUuid}/attachments/${attachmentUuid}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to delete attachment');
+  }
+}

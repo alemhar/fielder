@@ -7,6 +7,7 @@ import { DashboardScreen } from '../screens/dashboard/DashboardScreen';
 import { ProjectsScreen } from '../screens/projects/ProjectsScreen';
 import { ProjectActivitiesScreen } from '../screens/projects/ProjectActivitiesScreen';
 import { ActivityEntriesScreen } from '../screens/activities/ActivityEntriesScreen';
+import { ActivityEntryDetailScreen } from '../screens/activities/ActivityEntryDetailScreen';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -14,6 +15,7 @@ export type RootStackParamList = {
   Projects: undefined;
   ProjectActivities: { projectUuid: string; projectTitle: string };
   ActivityEntries: { activityUuid: string; activityTitle: string; projectTitle: string };
+  ActivityEntryDetail: { entryUuid: string; activityTitle: string; projectTitle: string };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -32,6 +34,7 @@ export const AppNavigator: React.FC = () => {
             <Stack.Screen name="Projects" component={ProjectsScreen} />
             <Stack.Screen name="ProjectActivities" component={ProjectActivitiesScreen} />
             <Stack.Screen name="ActivityEntries" component={ActivityEntriesScreen} />
+            <Stack.Screen name="ActivityEntryDetail" component={ActivityEntryDetailScreen} />
           </>
         )}
       </Stack.Navigator>

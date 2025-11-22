@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Button, TouchableOpacity, Alert, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { useAuthStore } from '../../stores/auth-store';
@@ -16,6 +16,7 @@ import { SectionHeader } from '../../components/SectionHeader';
 
 export const ActivityEntriesScreen: React.FC = () => {
   const route = useRoute<any>();
+  const navigation = useNavigation<any>();
   const token = useAuthStore((state) => state.token);
   const {
     primaryColor,
@@ -118,7 +119,16 @@ export const ActivityEntriesScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
-      <SectionHeader title={activityTitle ?? 'Activity entries'} subtitle={projectTitle} />
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <MaterialIcons name="arrow-back" size={24} color={primaryTextColor} />
+        </TouchableOpacity>
+        <View style={styles.titleColumn}>
+          <Text style={[styles.headerTitle, { color: primaryColor }]}>{activityTitle ?? 'Activity entries'}</Text>
+          <Text style={[styles.headerSubtitle, { color: mutedTextColor }]}>{projectTitle}</Text>
+        </View>
+        <View style={styles.placeholder} />
+      </View>
 
       <Text style={[styles.status, { color: mutedTextColor }]}>
         {isLoading ? 'Loading entries...' : error ? error : null}
@@ -126,7 +136,17 @@ export const ActivityEntriesScreen: React.FC = () => {
 
       <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
         {entries.map((entry) => (
-          <View key={entry.uuid} style={[styles.entryCard, { backgroundColor: cardBackgroundColor }]}>
+          <TouchableOpacity
+            key={entry.uuid}
+            style={[styles.entryCard, { backgroundColor: cardBackgroundColor }]}
+            onPress={() =>
+              navigation.navigate('ActivityEntryDetail', {
+                entryUuid: entry.uuid,
+                activityTitle,
+                projectTitle,
+              })
+            }
+          >
             <Text style={[styles.entryMeta, { color: mutedTextColor }]}>
               {entry.created_at ?? ''}
             </Text>
@@ -141,7 +161,7 @@ export const ActivityEntriesScreen: React.FC = () => {
                 {entry.attachments.length} attachment{entry.attachments.length === 1 ? '' : 's'}
               </Text>
             ) : null}
-          </View>
+          </TouchableOpacity>
         ))}
         {selectedAttachments.map((asset, index) => (
           <View key={index} style={[styles.attachmentPreview, { backgroundColor: cardBackgroundColor, borderColor: borderBaseColor }]}>
@@ -234,15 +254,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 24,
   },
-  title: {
-    color: '#fff',
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  titleColumn: {
+    flex: 1,
+    marginHorizontal: 16,
+  },
+  headerTitle: {
     fontSize: 22,
     fontWeight: '600',
-    marginBottom: 4,
   },
-  subtitle: {
-    color: '#ccc',
-    marginBottom: 12,
+  headerSubtitle: {
+    fontSize: 14,
+    marginTop: 2,
+  },
+  placeholder: {
+    width: 24,
   },
   status: {
     color: '#ff6b6b',

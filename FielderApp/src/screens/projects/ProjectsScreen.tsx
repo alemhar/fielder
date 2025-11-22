@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useAuthStore } from '../../stores/auth-store';
 import { fetchProjects, type ProjectSummary } from '../../services/fielder-service';
 import { useBranding } from '../../theme/branding';
 import { SectionHeader } from '../../components/SectionHeader';
 
 export const ProjectsScreen: React.FC = () => {
-  const token = useAuthStore((state) => state.token);
   const navigation = useNavigation<any>();
+  const token = useAuthStore((state) => state.token);
   const {
     primaryColor,
     backgroundColor,
@@ -53,7 +54,13 @@ export const ProjectsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
-      <SectionHeader title="Projects" subtitle="Select a project to view its activities." />
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <MaterialIcons name="arrow-back" size={24} color={primaryTextColor} />
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, { color: primaryTextColor }]}>Projects</Text>
+        <View style={styles.placeholder} />
+      </View>
 
       <Text style={[styles.status, { color: mutedTextColor }]}>
         {isLoading ? 'Loading projects...' : error ? error : null}
@@ -63,10 +70,7 @@ export const ProjectsScreen: React.FC = () => {
         {projects.map((project) => (
           <TouchableOpacity
             key={project.uuid}
-            style={[
-              styles.item,
-              { borderColor: borderBaseColor, backgroundColor: cardBackgroundColor },
-            ]}
+            style={[styles.projectCard, { backgroundColor: cardBackgroundColor, borderColor: borderBaseColor }]}
             onPress={() =>
               navigation.navigate('ProjectActivities', {
                 projectUuid: project.uuid,
@@ -74,7 +78,10 @@ export const ProjectsScreen: React.FC = () => {
               })
             }
           >
-            <Text style={[styles.itemTitle, { color: primaryTextColor }]}>{project.title}</Text>
+            <Text style={[styles.projectTitle, { color: primaryColor }]}>{project.title}</Text>
+            <Text style={[styles.projectMeta, { color: mutedTextColor }]}>
+              {project.activities_count} activity{project.activities_count === 1 ? '' : 's'}
+            </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -89,6 +96,19 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
     paddingBottom: 32,
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: '600',
+  },
+  placeholder: {
+    width: 24,
+  },
   status: {
     marginBottom: 8,
   },
@@ -98,12 +118,18 @@ const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 24,
   },
-  item: {
+  projectCard: {
     borderWidth: 1,
     borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    padding: 12,
     marginBottom: 8,
   },
-  itemTitle: {},
+  projectTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  projectMeta: {
+    fontSize: 12,
+    marginTop: 4,
+  },
 });
