@@ -10,6 +10,7 @@ import { useAuthStore } from '../../stores/auth-store';
 import {
   fetchActivityEntries,
   createActivityEntry,
+  createActivityEntryFromCamera,
   type ActivityEntryDto,
 } from '../../services/fielder-service';
 import { startCloudSpeechToText } from '../../services/cloud-speech-service';
@@ -87,15 +88,39 @@ export const ActivityEntriesScreen: React.FC = () => {
     setIsSaving(true);
     setError(null);
     try {
-      const created = await createActivityEntry(activityUuid, token, {
-        body: newBody.trim() || undefined,
-        data: null,
-        attachments: selectedAttachments.length > 0 ? selectedAttachments : undefined,
-      });
-      console.log('handleAddEntry created entry:', created);
-      if (created) {
-        setEntries((prev) => [created, ...prev]);
+      // Check if we have camera photos (base64) or regular files
+      const cameraPhotos = selectedAttachments.filter(a => a.uri.startsWith('data:'));
+      const regularFiles = selectedAttachments.filter(a => !a.uri.startsWith('data:'));
+      
+      if (cameraPhotos.length > 0 && regularFiles.length === 0) {
+        // Only camera photos - use camera endpoint
+        const created = await createActivityEntryFromCamera(activityUuid, token, {
+          body: newBody.trim() || '',
+          data: null,
+          photo: cameraPhotos[0].uri,
+          photoName: cameraPhotos[0].name,
+        });
+        console.log('handleAddEntry created entry:', created);
+        if (created) {
+          setEntries((prev) => [created, ...prev]);
+        }
+      } else if (regularFiles.length > 0 && cameraPhotos.length === 0) {
+        // Only regular files - use regular endpoint
+        const created = await createActivityEntry(activityUuid, token, {
+          body: newBody.trim() || undefined,
+          data: null,
+          attachments: regularFiles,
+        });
+        console.log('handleAddEntry created entry:', created);
+        if (created) {
+          setEntries((prev) => [created, ...prev]);
+        }
+      } else {
+        // Mixed types - not supported yet
+        Alert.alert('Error', 'Cannot mix camera photos and file attachments in the same entry');
+        return;
       }
+      
       setNewBody('');
       setSelectedAttachments([]);
     } catch (err) {
@@ -139,9 +164,18 @@ export const ActivityEntriesScreen: React.FC = () => {
     try {
       const photo = await cameraRef.current.takePictureAsync();
       if (photo) {
+        // Read the photo as base64
+        const base64 = await FileSystem.readAsStringAsync(photo.uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        
+        const dataUri = `data:image/jpeg;base64,${base64}`;
+        const fileName = `photo_${Date.now()}.jpg`;
+        
+        // Add as a camera attachment (base64 format)
         const asset: DocumentPicker.DocumentPickerAsset = {
-          uri: photo.uri,
-          name: `photo_${Date.now()}.jpg`,
+          uri: dataUri,
+          name: fileName,
           mimeType: 'image/jpeg',
           size: undefined,
         };

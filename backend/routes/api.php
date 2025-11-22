@@ -69,6 +69,9 @@ Route::middleware('auth:sanctum')->group(function () {
         ]);
     });
 
+    // Camera photo upload endpoint (accepts base64)
+    Route::post('/activities/{activityUuid}/entries/camera', [ActivityEntryController::class, 'storeFromCamera']);
+
     Route::get('/projects', [ProjectController::class, 'index']);
     Route::get('/projects/{projectUuid}', [ProjectController::class, 'show']);
 

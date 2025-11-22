@@ -92,6 +92,48 @@ export const fetchActivityEntries = async (
   return json.data as ActivityEntryDto[];
 };
 
+export async function createActivityEntryFromCamera(
+  activityUuid: string,
+  token: string,
+  data: { body?: string; data?: any; photo?: string; photoName?: string }
+): Promise<ActivityEntryDto> {
+  console.log('createActivityEntryFromCamera payload:', { 
+    body: data.body, 
+    data: data.data, 
+    hasPhoto: !!data.photo,
+    photoName: data.photoName 
+  });
+  
+  const formData = new FormData();
+  if (data.body) formData.append('body', data.body);
+  if (data.data) formData.append('data', JSON.stringify(data.data));
+  if (data.photo) formData.append('photo', data.photo);
+  if (data.photoName) formData.append('photoName', data.photoName);
+
+  const res = await fetch(`${API_BASE_URL}/api/activities/${activityUuid}/entries/camera`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+      'Content-Type': 'multipart/form-data',
+    },
+    body: formData,
+  });
+
+  console.log('createActivityEntryFromCamera response status:', res.status);
+  if (!res.ok) {
+    const err = await res.json();
+    console.error('createActivityEntryFromCamera error response:', JSON.stringify(err, null, 2));
+    throw new Error(err.message || 'Failed to create activity entry from camera');
+  }
+
+  const text = await res.text();
+  console.log('createActivityEntryFromCamera raw response:', text);
+  const json: { data: ActivityEntryDto } = JSON.parse(text);
+  console.log('createActivityEntryFromCamera success:', json);
+  return json.data;
+}
+
 export async function createActivityEntry(
   activityUuid: string,
   token: string,
