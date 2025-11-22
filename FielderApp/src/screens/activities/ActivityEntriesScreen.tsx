@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Button, TouchableOpacity, Alert, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { useAuthStore } from '../../stores/auth-store';
@@ -40,32 +40,38 @@ export const ActivityEntriesScreen: React.FC = () => {
   const [showAttachModal, setShowAttachModal] = useState(false);
   const [selectedAttachments, setSelectedAttachments] = useState<DocumentPicker.DocumentPickerAsset[]>([]);
 
-  useEffect(() => {
+  const loadEntries = useCallback(async () => {
     if (!token || !activityUuid) return;
     let isMounted = true;
 
-    const load = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await fetchActivityEntries(activityUuid, token);
-        if (!isMounted) return;
-        setEntries(data);
-      } catch {
-        if (!isMounted) return;
-        setError('Failed to load entries');
-      } finally {
-        if (!isMounted) return;
-        setIsLoading(false);
-      }
-    };
-
-    void load();
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await fetchActivityEntries(activityUuid, token);
+      if (!isMounted) return;
+      setEntries(data);
+    } catch {
+      if (!isMounted) return;
+      setError('Failed to load entries');
+    } finally {
+      if (!isMounted) return;
+      setIsLoading(false);
+    }
 
     return () => {
       isMounted = false;
     };
   }, [token, activityUuid]);
+
+  useEffect(() => {
+    void loadEntries();
+  }, [loadEntries]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadEntries();
+    }, [loadEntries])
+  );
 
   const handleMicPress = async () => {
     Alert.alert('Speech-to-text', 'Speech-to-text will be available after backend setup. For now, please type your entry.');

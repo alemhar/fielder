@@ -124,7 +124,7 @@ export const ActivityEntryDetailScreen: React.FC = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <MaterialIcons name="arrow-back" size={24} color={primaryTextColor} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: primaryTextColor }]}>Entry Details</Text>
+        <Text style={[styles.headerTitle, { color: primaryColor }]}>Entry Details</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -136,16 +136,24 @@ export const ActivityEntryDetailScreen: React.FC = () => {
         ) : null}
 
         {isEditing ? (
-          <TextInput
-            multiline
-            value={editedBody}
-            onChangeText={setEditedBody}
-            style={[styles.bodyInput, { color: primaryTextColor, borderColor: borderBaseColor }]}
-          />
+          <>
+            <TextInput
+              multiline
+              value={editedBody}
+              onChangeText={setEditedBody}
+              style={[styles.bodyInput, { color: primaryTextColor, borderColor: borderBaseColor }]}
+            />
+            <View style={styles.editActions}>
+              <Button title="Cancel" onPress={() => setIsEditing(false)} color="#6b7280" />
+              <Button title={isSaving ? 'Saving...' : 'Save'} onPress={handleSave} disabled={isSaving} color={primaryColor} />
+            </View>
+          </>
         ) : (
-          <Text style={[styles.body, { color: primaryTextColor }]}>
-            {entry.body || <Text style={[styles.placeholderText, { color: mutedTextColor }]}>No text</Text>}
-          </Text>
+          <TouchableOpacity onPress={() => setIsEditing(true)}>
+            <Text style={[styles.body, { color: primaryTextColor }]}>
+              {entry.body || <Text style={[styles.placeholderText, { color: mutedTextColor }]}>No text</Text>}
+            </Text>
+          </TouchableOpacity>
         )}
 
         {entry.attachments.length > 0 && (
@@ -163,17 +171,6 @@ export const ActivityEntryDetailScreen: React.FC = () => {
           </View>
         )}
       </ScrollView>
-
-      <View style={styles.actions}>
-        {isEditing ? (
-          <>
-            <Button title="Cancel" onPress={() => setIsEditing(false)} color="#6b7280" />
-            <Button title={isSaving ? 'Saving...' : 'Save'} onPress={handleSave} disabled={isSaving} color={primaryColor} />
-          </>
-        ) : (
-          <Button title="Edit" onPress={() => setIsEditing(true)} color={primaryColor} />
-        )}
-      </View>
     </SafeAreaView>
   );
 };
@@ -223,6 +220,12 @@ const styles = StyleSheet.create({
     padding: 12,
     minHeight: 120,
     textAlignVertical: 'top',
+    marginBottom: 12,
+  },
+  editActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
     marginBottom: 24,
   },
   attachmentsSection: {
@@ -243,11 +246,5 @@ const styles = StyleSheet.create({
   attachmentName: {
     flex: 1,
     fontSize: 14,
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
-    paddingTop: 16,
   },
 });
