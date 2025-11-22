@@ -17,6 +17,7 @@ This doc describes the unified projects model used by the backend and clients.
 ## Fields (DB-Level)
 
 - `id: bigint` — primary key.
+- `uuid: string` — non-guessable external identifier safe to expose in URLs/UI.
 - `tenantId: bigint` — FK to `tenants.id`.
 - `title: string` — project title shown in lists and headers.
 - `details: JSON` — stores project-specific values (description, status, dates, tags, R&D fields, etc.).
@@ -47,7 +48,7 @@ Regular vs R&D behaviour is modelled by **which fields** are present in the `det
 We use a **single `projects` table** for all project shapes.
 
 - Columns:
-  - `id`, `tenant_id`, `title`, `details` (JSON), `details_schema` (JSON), `external_id`, timestamps.
+  - `id`, `uuid`, `tenant_id`, `title`, `details` (JSON), `details_schema` (JSON), `external_id`, timestamps.
 - There is **no** `type` discriminator column.
 - Tenants hold default project schemas on the `tenants` table as `project_default_details_schema`, seeded from `config/schemas.php`.
 - When a project is created, its `details_schema` can be initialized from the tenant default or from a custom schema for that use case.

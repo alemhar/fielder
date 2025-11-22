@@ -2,6 +2,36 @@
 
 > Append-only log of completed tasks. New entries go at the top.
 
+## [2025-11-22] UUIDs for Tenants, Users, Projects, and Activities
+**Status**: ✅ Complete  
+**Owner**: (TBD)  
+**Impact**: [BACKEND] [DB] [DOCS]  
+**Changed**: 
+- `backend/database/migrations/0000_01_01_000000_create_tenants_table.php`  
+- `backend/database/migrations/0001_01_01_000000_create_users_table.php`  
+- `backend/database/migrations/2025_11_21_010000_create_projects_table.php`  
+- `backend/database/migrations/2025_11_21_020000_create_activities_table.php`  
+- `backend/app/Models/Tenant.php`  
+- `backend/app/Models/User.php`  
+- `backend/app/Models/Project.php`  
+- `backend/app/Models/Activity.php`  
+- `docs/domain/projects.md`  
+
+**Summary**:  
+Added non-guessable `uuid` columns for tenants, users, projects, and activities, and wired up model hooks to auto-generate them using `Str::uuid()`. These UUIDs are safe to expose in URLs and APIs while keeping numeric `id` values internal for joins.
+
+**Technical Notes**:  
+- Tenants, users, projects, and activities now all have a unique `uuid` column alongside their numeric primary key.  
+- `Tenant`, `User`, `Project`, and `Activity` models generate UUIDs on `creating` via `booted()` hooks.  
+- `Tenant` route model binding uses `uuid` instead of `id`; other models can adopt the same pattern later if desired.  
+
+**Testing**:  
+- [ ] Unit tests added/updated  
+- [ ] Manual verification completed (migrations + basic CRUD)
+
+**Docs Updated**:  
+- `docs/domain/projects.md`
+
 ## [2025-11-22] Projects & Activities Schema-Driven Design
 **Status**: ✅ Complete  
 **Owner**: (TBD)  
