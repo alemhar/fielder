@@ -2,6 +2,52 @@
 
 > Append-only log of completed tasks. New entries go at the top.
 
+## [2025-11-22] Activity Entries, Tenant Branding & Mobile UI
+**Status**: ✅ Complete  
+**Owner**: (TBD)  
+**Impact**: [BACKEND] [DB] [API] [FRONTEND] [MOBILE] [DOCS]  
+**Changed**: 
+- `backend/database/migrations/2025_11_22_030000_create_activity_entries_table.php`  
+- `backend/database/migrations/2025_11_22_040000_create_activity_entry_attachments_table.php`  
+- `backend/app/Models/ActivityEntry.php`  
+- `backend/app/Models/ActivityEntryAttachment.php`  
+- `backend/app/Http/Controllers/Api/ActivityEntryController.php`  
+- `backend/app/Http/Controllers/Api/ActivityController.php`  
+- `backend/app/Http/Controllers/Api/ProjectController.php`  
+- `backend/app/Http/Controllers/Api/AuthController.php`  
+- `backend/routes/api.php`  
+- `backend/config/branding.php`  
+- `backend/app/Models/Tenant.php`  
+- `backend/database/seeders/TenantSeeder.php`  
+- `FielderApp/src/services/auth-service.ts`  
+- `FielderApp/src/services/fielder-service.ts`  
+- `FielderApp/src/stores/auth-store.ts`  
+- `FielderApp/src/stores/theme-store.ts`  
+- `FielderApp/src/theme/branding.ts`  
+- `FielderApp/src/navigation/AppNavigator.tsx`  
+- `FielderApp/src/screens/auth/LoginScreen.tsx`  
+- `FielderApp/src/screens/dashboard/DashboardScreen.tsx`  
+- `FielderApp/src/screens/projects/ProjectsScreen.tsx`  
+- `FielderApp/src/screens/projects/ProjectActivitiesScreen.tsx`  
+- `FielderApp/src/screens/activities/ActivityEntriesScreen.tsx`  
+
+**Summary**:  
+Introduced a multi-tenant activity timeline (`activity_entries` + `activity_entry_attachments`) for recording notes and file attachments per activity, exposed read/create APIs for mobile, and wired a first-pass mobile UI (login, dashboard, projects, activities, entries) that consumes the seeded medical example. Added tenant-level branding (primary/secondary colors + light/dark logos) and applied it to the mobile app with a manual light/dark theme toggle.
+
+**Technical Notes**:  
+- `activity_entries` stores free-text notes and optional structured `data` per activity/user/tenant; `activity_entry_attachments` stores file metadata and paths, with files saved on the `public` disk under a tenant- and activity-scoped path.  
+- New Sanctum-protected APIs: project listing/detail, project activities, activity entries list, and create-entry (with optional attachments). Attachments include a public `url` field in API responses for easy consumption by clients.  
+- Tenant branding defaults (primary/secondary colors, light/dark logo paths) live in `config/branding.php` and are also seeded via `Tenant` model boot hooks into the `settings->branding` JSON. Auth responses (`/api/auth/login`, `/api/me`) now include a `company.branding` payload to drive UI.  
+- The Expo/React Native app now has a minimal but end-to-end flow: login via Sanctum, session restore via `/api/me`, dashboard showing tenant projects, per-project activities, and per-activity entries (notes + attachment counts), with a simple entry composer.  
+- Mobile theming is centralized in `useBranding`, which merges tenant branding with a global `theme-store` to produce light/dark-aware background, text, border, and card colors. A small menu on the dashboard header allows switching between light and dark themes and signing out.
+
+**Testing**:  
+- [ ] Unit tests added/updated  
+- [x] Manual verification completed (migrations, seeding, API responses, and mobile flow: login → dashboard → projects → activities → entries → add entry)
+
+**Docs Updated**:  
+- `docs/delivery/task-log.md`
+
 ## [2025-11-22] UUIDs for Tenants, Users, Projects, and Activities
 **Status**: ✅ Complete  
 **Owner**: (TBD)  
