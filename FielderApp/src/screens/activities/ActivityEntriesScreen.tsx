@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Button } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, Button, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/auth-store';
@@ -8,7 +8,9 @@ import {
   createActivityEntry,
   type ActivityEntryDto,
 } from '../../services/fielder-service';
+import { startSpeechToText } from '../../services/speech-service';
 import { useBranding } from '../../theme/branding';
+import Voice from '@react-native-voice/voice';
 
 export const ActivityEntriesScreen: React.FC = () => {
   const route = useRoute<any>();
@@ -31,6 +33,7 @@ export const ActivityEntriesScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [newBody, setNewBody] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isListening, setIsListening] = useState(false);
 
   useEffect(() => {
     if (!token || !activityUuid) return;
@@ -59,6 +62,13 @@ export const ActivityEntriesScreen: React.FC = () => {
     };
   }, [token, activityUuid]);
 
+  // Cleanup Voice listeners on unmount
+  useEffect(() => {
+    return () => {
+      Voice.destroy().then(Voice.removeAllListeners);
+    };
+  }, []);
+
   const handleAddEntry = async () => {
     if (!token || !activityUuid || !newBody.trim()) return;
     setIsSaving(true);
@@ -75,6 +85,27 @@ export const ActivityEntriesScreen: React.FC = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleMicPress = async () => {
+    setIsListening(true);
+    try {
+      const transcript = await startSpeechToText();
+      setNewBody((prev) => (prev ? `${prev} ${transcript}` : transcript));
+    } catch (e: any) {
+      console.error('Mic error:', e);
+      Alert.alert('Speech-to-text error', e.message || 'Failed to recognize speech');
+    } finally {
+      setIsListening(false);
+    }
+  };
+
+  const handleAttachPress = () => {
+    Alert.alert('Attach file', 'File attachment UI to be implemented');
+  };
+
+  const handleImagePress = () => {
+    Alert.alert('Attach image', 'Image attachment UI to be implemented');
   };
 
   return (
@@ -112,21 +143,46 @@ export const ActivityEntriesScreen: React.FC = () => {
       </ScrollView>
 
       <View style={[styles.newEntryContainer, { borderTopColor: borderBaseColor }]}>
-        <TextInput
-          value={newBody}
-          onChangeText={setNewBody}
-          placeholder="Add a quick note about this activity..."
-          placeholderTextColor={mutedTextColor}
-          multiline
-          style={[
-            styles.newEntryInput,
-            {
-              borderColor: borderBaseColor,
-              backgroundColor: inputBackgroundColor,
-              color: primaryTextColor,
-            },
-          ]}
-        />
+        <View style={styles.inputRow}>
+          <TextInput
+            value={newBody}
+            onChangeText={setNewBody}
+            placeholder="Add a quick note about this activity..."
+            placeholderTextColor={mutedTextColor}
+            multiline
+            style={[
+              styles.newEntryInput,
+              {
+                borderColor: borderBaseColor,
+                backgroundColor: inputBackgroundColor,
+                color: primaryTextColor,
+              },
+            ]}
+          />
+          <View style={styles.iconRow}>
+            <TouchableOpacity
+              style={[styles.iconButton, { borderColor: borderBaseColor }]}
+              onPress={handleMicPress}
+              disabled={isListening}
+            >
+              <Text style={[styles.iconText, { color: isListening ? '#aaa' : primaryTextColor }]}>
+                {isListening ? '...' : '🎤'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.iconButton, { borderColor: borderBaseColor }]}
+              onPress={handleAttachPress}
+            >
+              <Text style={[styles.iconText, { color: primaryTextColor }]}>📎</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.iconButton, { borderColor: borderBaseColor }]}
+              onPress={handleImagePress}
+            >
+              <Text style={[styles.iconText, { color: primaryTextColor }]}>🖼️</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
         <Button
           title={isSaving ? 'Saving...' : 'Add entry'}
           onPress={handleAddEntry}
@@ -184,6 +240,11 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 16,
   },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
   newEntryInput: {
     backgroundColor: '#222',
     color: '#fff',
@@ -191,7 +252,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    marginBottom: 8,
     minHeight: 60,
+    flex: 1,
+    marginRight: 8,
+  },
+  iconRow: {
+    justifyContent: 'space-between',
+  },
+  iconButton: {
+    borderWidth: 1,
+    borderRadius: 8,
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  iconText: {
+    fontSize: 18,
   },
 });
