@@ -58,4 +58,19 @@ class AuthController extends Controller
 			],
 		]);
 	}
+
+	public function schemas(Request $request): JsonResponse
+	{
+		/** @var User $user */
+		$user = $request->user();
+		$tenant = $user->tenant;
+
+		$projectSchema = $tenant->project_default_details_schema ?: config('schemas.default_project_details_schema');
+		$activitySchema = $tenant->activity_default_details_schema ?: config('schemas.default_activity_details_schema');
+
+		return response()->json([
+			'project_default_details_schema' => $projectSchema,
+			'activity_default_details_schema' => $activitySchema,
+		]);
+	}
 }
