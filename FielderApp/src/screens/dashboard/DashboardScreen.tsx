@@ -63,7 +63,7 @@ export const DashboardScreen: React.FC = () => {
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <View style={styles.headerRow}>
         <View>
-          <Text style={[styles.title, { color: primaryTextColor }]}>Fielder Dashboard</Text>
+          <Text style={[styles.title, { color: primaryColor }]}>Fielder Dashboard</Text>
           {user ? (
             <Text style={[styles.subtitle, { color: secondaryTextColor }]}>Signed in as {user.email}</Text>
           ) : null}

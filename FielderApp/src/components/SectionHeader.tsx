@@ -8,11 +8,11 @@ interface SectionHeaderProps {
 }
 
 export const SectionHeader: React.FC<SectionHeaderProps> = ({ title, subtitle }) => {
-  const { primaryTextColor, secondaryTextColor, borderBaseColor } = useBranding();
+  const { primaryColor, primaryTextColor, secondaryTextColor, borderBaseColor } = useBranding();
 
   return (
     <View style={[styles.header, { borderBottomColor: borderBaseColor }]}>
-      <Text style={[styles.title, { color: primaryTextColor }]}>{title}</Text>
+      <Text style={[styles.title, { color: primaryColor }]}>{title}</Text>
       {subtitle ? (
         <Text style={[styles.subtitle, { color: secondaryTextColor }]}>{subtitle}</Text>
       ) : null}
