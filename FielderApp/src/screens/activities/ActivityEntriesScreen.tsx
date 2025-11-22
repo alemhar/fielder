@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, Button, TouchableOpacity, Alert, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, Button, TouchableOpacity, Alert, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -224,150 +224,164 @@ export const ActivityEntriesScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
-      <View style={styles.headerRow}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back" size={24} color={primaryTextColor} />
-        </TouchableOpacity>
-        <View style={styles.titleColumn}>
-          <Text style={[styles.headerTitle, { color: primaryColor }]}>{activityTitle ?? 'Activity entries'}</Text>
-          <Text style={[styles.headerSubtitle, { color: mutedTextColor }]}>{projectTitle}</Text>
-        </View>
-        <View style={styles.placeholder} />
-      </View>
-
-      <Text style={[styles.status, { color: mutedTextColor }]}>
-        {isLoading ? 'Loading entries...' : error ? error : null}
-      </Text>
-
-      <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
-        {entries.map((entry) => (
-          <TouchableOpacity
-            key={entry.uuid}
-            style={[styles.entryItem, { backgroundColor: cardBackgroundColor, borderColor: borderBaseColor }]}
-            onPress={() => navigation.navigate('ActivityEntryDetail', { entryUuid: entry.uuid })}
-          >
-            <View style={styles.entryHeader}>
-              <Text style={[styles.entryBody, { color: primaryTextColor }]}>
-                {entry.body || <Text style={[styles.placeholderText, { color: mutedTextColor }]}>No text</Text>}
-              </Text>
-              <TouchableOpacity
-                onPress={() => handleDeleteEntry(entry.uuid)}
-                style={styles.deleteButton}
-              >
-                <MaterialIcons name="delete-outline" size={20} color="#ef4444" />
-              </TouchableOpacity>
-            </View>
-            <Text style={[styles.entryDate, { color: secondaryTextColor }]}>
-              {new Date(entry.created_at).toLocaleString()}
-            </Text>
-            {entry.attachments && entry.attachments.length > 0 && (
-              <View style={styles.attachmentRow}>
-                <MaterialIcons name="attach-file" size={16} color={mutedTextColor} />
-                <Text style={[styles.attachmentCount, { color: mutedTextColor }]}>
-                  {entry.attachments.length} attachment{entry.attachments.length > 1 ? 's' : ''}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        ))}
-        {selectedAttachments.map((asset, index) => (
-          <View key={index} style={[styles.attachmentPreview, { backgroundColor: cardBackgroundColor, borderColor: borderBaseColor }]}>
-            <View style={styles.attachmentRow}>
-              <MaterialIcons name="attach-file" size={20} color={primaryTextColor} />
-              <Text style={[styles.attachmentName, { color: primaryTextColor }]}>{asset.name}</Text>
-              <TouchableOpacity onPress={() => handleClearAttachment(index)}>
-                <MaterialIcons name="close" size={20} color={mutedTextColor} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
-      </ScrollView>
-
-      <View style={[styles.newEntryContainer, { borderTopColor: borderBaseColor }]}>
-        <View style={styles.inputRow}>
-          <TouchableOpacity
-            style={[styles.attachButton, { borderColor: borderBaseColor }]}
-            onPress={() => setShowAttachModal(true)}
-          >
-            <MaterialIcons name="add" size={24} color={primaryTextColor} />
-          </TouchableOpacity>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              value={newBody}
-              onChangeText={setNewBody}
-              placeholder="Add a quick note about this activity..."
-              placeholderTextColor={mutedTextColor}
-              multiline
-              style={[
-                styles.newEntryInput,
-                {
-                  borderColor: borderBaseColor,
-                  backgroundColor: inputBackgroundColor,
-                  color: primaryTextColor,
-                },
-              ]}
-            />
-            <TouchableOpacity
-              style={styles.micButton}
-              onPress={handleMicPress}
-              disabled={isListening}
-            >
-              <MaterialIcons
-                name={isListening ? 'mic' : 'mic-none'}
-                size={20}
-                color={isListening ? '#aaa' : primaryTextColor}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-        <Button
-          title={isSaving ? 'Saving...' : 'Add entry'}
-          onPress={handleAddEntry}
-          color={primaryColor}
-        />
-      </View>
-
-      {/* Attach Options Modal */}
-      <Modal
-        transparent
-        visible={showAttachModal}
-        animationType="fade"
-        onRequestClose={() => setShowAttachModal(false)}
+      <KeyboardAvoidingView 
+        style={styles.keyboardContainer} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
-        <TouchableOpacity style={styles.modalOverlay} onPress={() => setShowAttachModal(false)}>
-          <View style={[styles.attachModal, { backgroundColor: cardBackgroundColor, borderColor: borderBaseColor }]}>
-            <TouchableOpacity style={styles.attachOption} onPress={handleAttachFile}>
-              <MaterialIcons name="attach-file" size={24} color={primaryTextColor} />
-              <Text style={[styles.attachOptionText, { color: primaryTextColor }]}>Attach File/Photo</Text>
+        <View style={styles.contentContainer}>
+          <View style={styles.headerRow}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <MaterialIcons name="arrow-back" size={24} color={primaryTextColor} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.attachOption} onPress={handleCapturePhoto}>
-              <MaterialIcons name="photo-camera" size={24} color={primaryTextColor} />
-              <Text style={[styles.attachOptionText, { color: primaryTextColor }]}>Camera</Text>
-            </TouchableOpacity>
+            <View style={styles.titleColumn}>
+              <Text style={[styles.headerTitle, { color: primaryColor }]}>{activityTitle ?? 'Activity entries'}</Text>
+              <Text style={[styles.headerSubtitle, { color: mutedTextColor }]}>{projectTitle}</Text>
+            </View>
+            <View style={styles.placeholder} />
           </View>
-        </TouchableOpacity>
-      </Modal>
 
-      {/* Camera Modal */}
-      <Modal visible={showCameraModal} animationType="slide">
-        <SafeAreaView style={styles.cameraContainer}>
-          <CameraView style={styles.camera} facing="back" ref={cameraRef} />
-          <View style={styles.cameraOverlay}>
-            <TouchableOpacity style={styles.closeCamera} onPress={() => setShowCameraModal(false)}>
-              <MaterialIcons name="close" size={32} color="#fff" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.captureButton} onPress={handleTakePicture}>
-              <View style={styles.captureInner} />
-            </TouchableOpacity>
+          <Text style={[styles.status, { color: mutedTextColor }]}>
+            {isLoading ? 'Loading entries...' : error ? error : null}
+          </Text>
+
+          <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
+            {entries.map((entry) => (
+              <TouchableOpacity
+                key={entry.uuid}
+                style={[styles.entryItem, { backgroundColor: cardBackgroundColor, borderColor: borderBaseColor }]}
+                onPress={() => navigation.navigate('ActivityEntryDetail', { entryUuid: entry.uuid })}
+              >
+                <View style={styles.entryHeader}>
+                  <Text style={[styles.entryBody, { color: primaryTextColor }]}>
+                    {entry.body || <Text style={[styles.placeholderText, { color: mutedTextColor }]}>No text</Text>}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => handleDeleteEntry(entry.uuid)}
+                    style={styles.deleteButton}
+                  >
+                    <MaterialIcons name="delete-outline" size={20} color="#ef4444" />
+                  </TouchableOpacity>
+                </View>
+                <Text style={[styles.entryDate, { color: secondaryTextColor }]}>
+                  {new Date(entry.created_at).toLocaleString()}
+                </Text>
+                {entry.attachments && entry.attachments.length > 0 && (
+                  <View style={styles.attachmentRow}>
+                    <MaterialIcons name="attach-file" size={16} color={mutedTextColor} />
+                    <Text style={[styles.attachmentCount, { color: mutedTextColor }]}>
+                      {entry.attachments.length} attachment{entry.attachments.length > 1 ? 's' : ''}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            ))}
+            {selectedAttachments.map((asset, index) => (
+              <View key={index} style={[styles.attachmentPreview, { backgroundColor: cardBackgroundColor, borderColor: borderBaseColor }]}>
+                <View style={styles.attachmentRow}>
+                  <MaterialIcons name="attach-file" size={20} color={primaryTextColor} />
+                  <Text style={[styles.attachmentName, { color: primaryTextColor }]}>{asset.name}</Text>
+                  <TouchableOpacity onPress={() => handleClearAttachment(index)}>
+                    <MaterialIcons name="close" size={20} color={mutedTextColor} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+
+          <View style={[styles.newEntryContainer, { borderTopColor: borderBaseColor }]}>
+            <View style={styles.inputRow}>
+              <TouchableOpacity
+                style={[styles.attachButton, { borderColor: borderBaseColor }]}
+                onPress={() => setShowAttachModal(true)}
+              >
+                <MaterialIcons name="add" size={24} color={primaryTextColor} />
+              </TouchableOpacity>
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  value={newBody}
+                  onChangeText={setNewBody}
+                  placeholder="Add a quick note about this activity..."
+                  placeholderTextColor={mutedTextColor}
+                  multiline
+                  style={[
+                    styles.newEntryInput,
+                    {
+                      borderColor: borderBaseColor,
+                      backgroundColor: inputBackgroundColor,
+                      color: primaryTextColor,
+                    },
+                  ]}
+                />
+                <TouchableOpacity
+                  style={styles.micButton}
+                  onPress={handleMicPress}
+                  disabled={isListening}
+                >
+                  <MaterialIcons
+                    name={isListening ? 'mic' : 'mic-none'}
+                    size={20}
+                    color={isListening ? '#aaa' : primaryTextColor}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <Button
+              title={isSaving ? 'Saving...' : 'Add entry'}
+              onPress={handleAddEntry}
+              color={primaryColor}
+            />
           </View>
-        </SafeAreaView>
-      </Modal>
+
+          {/* Attach Options Modal */}
+          <Modal
+            transparent
+            visible={showAttachModal}
+            animationType="fade"
+            onRequestClose={() => setShowAttachModal(false)}
+          >
+            <TouchableOpacity style={styles.modalOverlay} onPress={() => setShowAttachModal(false)}>
+              <View style={[styles.attachModal, { backgroundColor: cardBackgroundColor, borderColor: borderBaseColor }]}>
+                <TouchableOpacity style={styles.attachOption} onPress={handleAttachFile}>
+                  <MaterialIcons name="attach-file" size={24} color={primaryTextColor} />
+                  <Text style={[styles.attachOptionText, { color: primaryTextColor }]}>Attach File/Photo</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.attachOption} onPress={handleCapturePhoto}>
+                  <MaterialIcons name="photo-camera" size={24} color={primaryTextColor} />
+                  <Text style={[styles.attachOptionText, { color: primaryTextColor }]}>Camera</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          </Modal>
+
+          {/* Camera Modal */}
+          <Modal visible={showCameraModal} animationType="slide">
+            <SafeAreaView style={styles.cameraContainer}>
+              <CameraView style={styles.camera} facing="back" ref={cameraRef} />
+              <View style={styles.cameraOverlay}>
+                <TouchableOpacity style={styles.closeCamera} onPress={() => setShowCameraModal(false)}>
+                  <MaterialIcons name="close" size={32} color="#fff" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.captureButton} onPress={handleTakePicture}>
+                  <View style={styles.captureInner} />
+                </TouchableOpacity>
+              </View>
+            </SafeAreaView>
+          </Modal>
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  keyboardContainer: {
+    flex: 1,
+  },
+  contentContainer: {
     flex: 1,
     paddingHorizontal: 24,
     paddingVertical: 24,
