@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/auth-store';
 import { fetchProjects, type ProjectSummary } from '../../services/fielder-service';
@@ -50,7 +51,7 @@ export const ProjectsScreen: React.FC = () => {
   }, [token]);
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <Text style={[styles.title, { color: primaryTextColor }]}>Projects</Text>
       <Text style={[styles.subtitle, { color: secondaryTextColor }]}>Select a project to view its activities.</Text>
 
@@ -77,7 +78,7 @@ export const ProjectsScreen: React.FC = () => {
           </TouchableOpacity>
         ))}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -86,6 +87,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
     paddingVertical: 24,
+    paddingBottom: 32,
   },
   title: {
     color: '#fff',

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/auth-store';
 import { fetchProjects, type ProjectSummary } from '../../services/fielder-service';
@@ -58,7 +59,7 @@ export const DashboardScreen: React.FC = () => {
   const projectsCount = projects.length;
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <View style={styles.headerRow}>
         <View>
           <Text style={[styles.title, { color: primaryTextColor }]}>Fielder Dashboard</Text>
@@ -149,7 +150,7 @@ export const DashboardScreen: React.FC = () => {
       </ScrollView>
 
       <Button title="View all projects" onPress={() => navigation.navigate('Projects')} color={primaryColor} />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -158,6 +159,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
     paddingVertical: 24,
+    paddingBottom: 32,
   },
   title: {
     color: '#fff',

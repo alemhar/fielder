@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../stores/auth-store';
 import { useBranding } from '../../theme/branding';
 
@@ -24,7 +25,7 @@ export const LoginScreen: React.FC = () => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor }]}>
       {currentLogoUrl ? (
         <Image source={{ uri: currentLogoUrl }} style={styles.logo} resizeMode="contain" />
       ) : null}
@@ -60,7 +61,7 @@ export const LoginScreen: React.FC = () => {
         onPress={handleSubmit}
         color={primaryColor}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -69,6 +70,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
     justifyContent: 'center',
+    paddingBottom: 24,
   },
   title: {
     color: '#fff',

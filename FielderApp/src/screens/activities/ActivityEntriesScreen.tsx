@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Button } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 import { useAuthStore } from '../../stores/auth-store';
 import {
@@ -77,7 +78,7 @@ export const ActivityEntriesScreen: React.FC = () => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor }]}>
       <Text style={[styles.title, { color: primaryTextColor }]}>
         {activityTitle ?? 'Activity entries'}
       </Text>
@@ -132,7 +133,7 @@ export const ActivityEntriesScreen: React.FC = () => {
           color={primaryColor}
         />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -181,6 +182,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.1)',
     paddingTop: 8,
+    paddingBottom: 16,
   },
   newEntryInput: {
     backgroundColor: '#222',
